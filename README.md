@@ -17,10 +17,10 @@ How To Use:
 
 Credits:
 -------
-Bobblehead - Making it actually work.
-Mahalis - Some code.
-Fernando5567 - Much code.
-Mitsilagi - Models/effects
+Bobblehead - Making it actually work.  
+Mahalis - Some code.  
+Fernando5567 - Much code.  
+Mitsilagi - Models/effects  
 
 Other:
 ------
