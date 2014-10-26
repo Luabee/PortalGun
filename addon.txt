@@ -1,0 +1,10 @@
+"AddonInfo"
+{
+	"name"		"GMod PortalGun"
+	"version"	"V3"
+	"up_date"	"11/07/2010"
+	"author_name"	"Fernando5567"
+	"author_email"	"Fergp1998@hotmail.com"
+	"author_url"	"Juegos-Directos.jimdo.com"
+	"info"		"Una arma de portales para Gmod/A PortalGun for GMod"
+}
