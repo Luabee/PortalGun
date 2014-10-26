@@ -15,7 +15,7 @@ Credits:
 Bobblehead - Making it actually work.
 Mahalis - Some code.
 Fernando5567 - Much code.
-Mitsilagi - Models.
+Mitsilagi - Models/effects
 
 
 Also works in Trouble in Terrorist Town as a traitor and detective weapon!
