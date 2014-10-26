@@ -109,40 +109,6 @@ local orangebordermat = surface.GetTextureID( "sprites/ogborder" )
 local bluebetabordermat = surface.GetTextureID( "sprites/blueborder" )
 local orangebetabordermat = surface.GetTextureID( "sprites/redborder" )
 
-function ENT:SetUpEffects(int)
-
-	local ang = self:GetAngles()
-	ang:RotateAroundAxis(ang:Right(),-90)
-	ang:RotateAroundAxis(ang:Forward(),0)
-	ang:RotateAroundAxis(ang:Up(),90)
-
-	local ent = ents.Create( "info_particle_system" )
-	ent:SetPos(self:GetPos())
-	ent:SetAngles(ang)
-	if int == TYPE_BLUE then
-		ent:SetKeyValue( "effect_name", "portal_1_edge")
-	elseif int == TYPE_ORANGE then
-		ent:SetKeyValue( "effect_name", "portal_2_edge")
-	end
-	ent:SetKeyValue( "start_active", "1")
-	ent:Spawn()
-	ent:Activate()
-	ent:SetParent(self)
-	
-	local ent = ents.Create( "info_particle_system" )
-	ent:SetPos(self:GetPos())
-	ent:SetAngles(ang)
-	if int == TYPE_BLUE then
-		ent:SetKeyValue( "effect_name", "portal_1_vacuum")
-	elseif int == TYPE_ORANGE then
-		ent:SetKeyValue( "effect_name", "portal_2_vacuum")
-	end
-	ent:SetKeyValue( "start_active", "1")
-	ent:Spawn()
-	ent:Activate()
-	ent:SetParent(self)
-end
-
 function ENT:DrawPortalEffects( portaltype )
 
         local ang = self:GetAngles()

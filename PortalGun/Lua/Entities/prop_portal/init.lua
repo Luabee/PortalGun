@@ -358,6 +358,7 @@ function ENT:Touch( ent )
 				--[[Check if the player is actually within the bounds of the portal.
 					Player's feet and head must be in the portal to enter.
 					portal dimensions: 64 wide, 104 tall]]
+					if plyPos.x > 20 then return end
 					if eyePos.z > 52 then return end
 					-- print("Head is in Z.")
 					if plyPos.z+ent:GetStepSize() < -52 then return end

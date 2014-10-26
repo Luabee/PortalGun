@@ -56,8 +56,9 @@ function ipMove( ply, mv )
 
         if IsValid( ply.InPortal ) and ply:GetMoveType() == MOVETYPE_NOCLIP then
                 -- if ply:GetMoveType() != MOVETYPE_NOCLIP then
-                        -- return
+					-- return
                 -- end
+				//Glitchy fix.
 				if ply.InPortal:GetPos():Distance(ply:GetPos()) > 80 and ply.InPortal:IsLinked() and ply.InPortal:GetOther():GetPos():Distance(ply:GetPos()) > 80 then
 					ply.InPortal = nil
 					ply:SetMoveType(MOVETYPE_WALK)

@@ -24,7 +24,7 @@ function ENT:SetType( int )
 	umsg.End()]]
 	
 	if self.Activated == true then
-		if CLIENT then
+		if SERVER then
 			self:SetUpEffects(int)
 		end
 	end
@@ -37,6 +37,41 @@ end
 function ENT:GetOther()
 	return self:GetNWEntity("Potal:Other",NULL)
 end
+
+function ENT:SetUpEffects(int)
+
+	local ang = self:GetAngles()
+	ang:RotateAroundAxis(ang:Right(),-90)
+	ang:RotateAroundAxis(ang:Forward(),0)
+	ang:RotateAroundAxis(ang:Up(),90)
+
+	local ent = ents.Create( "info_particle_system" )
+	ent:SetPos(self:GetPos())
+	ent:SetAngles(ang)
+	if int == TYPE_BLUE then
+		ent:SetKeyValue( "effect_name", "portal_1_edge")
+	elseif int == TYPE_ORANGE then
+		ent:SetKeyValue( "effect_name", "portal_2_edge")
+	end
+	ent:SetKeyValue( "start_active", "1")
+	ent:Spawn()
+	ent:Activate()
+	ent:SetParent(self)
+	
+	local ent = ents.Create( "info_particle_system" )
+	ent:SetPos(self:GetPos())
+	ent:SetAngles(ang)
+	if int == TYPE_BLUE then
+		ent:SetKeyValue( "effect_name", "portal_1_vacuum")
+	elseif int == TYPE_ORANGE then
+		ent:SetKeyValue( "effect_name", "portal_2_vacuum")
+	end
+	ent:SetKeyValue( "start_active", "1")
+	ent:Spawn()
+	ent:Activate()
+	ent:SetParent(self)
+end
+
 
 --checks if there is a floor in front of the portal or if a specific position is on top of a floor.
 -- function ENT:FloorInFront(pos)
