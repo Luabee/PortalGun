@@ -16,8 +16,8 @@ end
 
 if ( CLIENT ) then
         SWEP.WepSelectIcon = surface.GetTextureID("weapons/portalgun_inventory")
-        SWEP.PrintName          = "A.S.H.P.D."
-        SWEP.Author                     = "Fernando5567"
+        SWEP.PrintName          = "Portal Gun"
+        SWEP.Author             = "Fernando5567"
         SWEP.Contact            = "Fergp1998@hotmail.com"
         SWEP.Purpose            = "Shoot Linked Portals"
         SWEP.ViewModelFOV       = "60"
@@ -109,7 +109,7 @@ SWEP.Spawnable                  = true
 SWEP.AdminSpawnable             = true
 
 
-SWEP.ViewModel                  = "models/weapons/v_portalgun.mdl"
+SWEP.ViewModel                  = "models/weapons/portalgun/v_portalgun.mdl"
 SWEP.WorldModel                 = "models/weapons/portalgun/w_portalgun_hl2.mdl"
 
 SWEP.ViewModelFlip              = false
@@ -119,16 +119,16 @@ SWEP.DrawCrosshair = true
 
 SWEP.ShootOrange        = Sound( "Weapon_Portalgun.fire_red" )
 SWEP.ShootBlue          = Sound( "Weapon_Portalgun.fire_blue" )
-SWEP.Delay                      = 0.5
+SWEP.Delay                      = 0.1
 
 SWEP.Primary.ClipSize           = -1
 SWEP.Primary.DefaultClip        = -1
-SWEP.Primary.Automatic          = true
+SWEP.Primary.Automatic          = false
 SWEP.Primary.Ammo                       = "none"
 
 SWEP.Secondary.ClipSize         = -1
 SWEP.Secondary.DefaultClip      = -1
-SWEP.Secondary.Automatic        = true
+SWEP.Secondary.Automatic        = false
 SWEP.Secondary.Ammo                     = "none"
 
 SWEP.RunBob = 0.5
@@ -139,6 +139,7 @@ SWEP.HasBluePortal = false
 
 function SWEP:Initialize()
 
+		self.Weapon:SetNetworkedInt("LastPortal",0,true)
         self:SetWeaponHoldType( self.HoldType )
        
 end
@@ -278,65 +279,93 @@ function SWEP:IsPosionValid( pos, normal, minwallhits, dosecondcheck )
 
 end
 
-function SWEP:ImpactEffect( traceHit )
-	local data = EffectData();
-	data:SetOrigin(traceHit.HitPos)
-	data:SetNormal(traceHit.HitNormal)
-	data:SetScale(20)
-	util.Effect( "StunstickImpact", data );
-	local rand=math.random(1,1.5);
-	self:CreateBlast(rand,traceHit.HitPos)
-	self:CreateBlast(rand,traceHit.HitPos)											
-	if SERVER && traceHit.Entity && IsValid(traceHit.Entity) && string.find(traceHit.Entity:GetClass(),"ragdoll") then
-		traceHit.Entity:Fire("StartRagdollBoogie");
-		/*
-		local boog=ents.Create("env_ragdoll_boogie")
-		boog:SetPos(traceHit.Entity:GetPos())
-		boog:SetParent(traceHit.Entity)
-		boog:Spawn()
-		boog:SetParent(traceHit.Entity)
-		*/
+-- function SWEP:ImpactEffect( traceHit )
+	-- local data = EffectData();
+	-- data:SetOrigin(traceHit.HitPos)
+	-- data:SetNormal(traceHit.HitNormal)
+	-- data:SetScale(20)
+	-- util.Effect( "StunstickImpact", data );
+	-- local rand=math.random(1,1.5);
+	-- self:CreateBlast(rand,traceHit.HitPos)
+	-- self:CreateBlast(rand,traceHit.HitPos)											
+	-- if SERVER && traceHit.Entity && IsValid(traceHit.Entity) && string.find(traceHit.Entity:GetClass(),"ragdoll") then
+		-- traceHit.Entity:Fire("StartRagdollBoogie");
+		-- /*
+		-- local boog=ents.Create("env_ragdoll_boogie")
+		-- boog:SetPos(traceHit.Entity:GetPos())
+		-- boog:SetParent(traceHit.Entity)
+		-- boog:Spawn()
+		-- boog:SetParent(traceHit.Entity)
+		-- */
+	-- end
+-- end
+
+-- function SWEP:ShootEffect(EFFECTSTR,startpos,endpos)
+	-- local pPlayer=self.Owner;
+	-- if !pPlayer then return end
+	-- local view;
+	-- if CLIENT then view=GetViewEntity() else view=pPlayer:GetViewEntity() end
+		-- if ( !pPlayer:IsNPC() && view:IsPlayer() ) then
+			-- util.ParticleTracerEx( EFFECTSTR, self.Weapon:GetAttachment( self.Weapon:LookupAttachment( "muzzle" ) ).Pos,endpos, pPlayer:GetViewModel():EntIndex(),true,  pPlayer:GetViewModel():LookupAttachment( "muzzle" ) );
+		-- else
+			-- util.ParticleTracerEx( EFFECTSTR, pPlayer:GetAttachment( pPlayer:LookupAttachment( "anim_attachment_rh" ) ).Pos,endpos,pPlayer:EntIndex(), true, pPlayer:LookupAttachment( "anim_attachment_rh" ) );
+		-- end
+-- end
+
+-- function SWEP:DispatchEffect(EFFECTSTR)
+	-- local pPlayer=self.Owner;
+	-- if !pPlayer then return end
+	-- local view;
+	-- if CLIENT then view=GetViewEntity() else view=pPlayer:GetViewEntity() end
+		-- if ( !pPlayer:IsNPC() && view:IsPlayer() ) then
+			-- ParticleEffectAttach( EFFECTSTR, PATTACH_POINT_FOLLOW, pPlayer:GetViewModel(), pPlayer:GetViewModel():LookupAttachment( "muzzle" ) );
+		-- else
+			-- ParticleEffectAttach( EFFECTSTR, PATTACH_POINT_FOLLOW, pPlayer, pPlayer:LookupAttachment( "anim_attachment_rh" ) );
+		-- end
+-- end
+
+-- function SWEP:CreateBlast(scale,pos)
+	-- if CLIENT then return end
+	-- local blastspr = ents.Create("env_sprite");			//took me hours to understand how this damn
+	-- blastspr:SetPos( pos );								//entity works
+	-- blastspr:SetKeyValue( "model", "sprites/vortring1.vmt")//the damn vortigaunt beam ring
+	-- blastspr:SetKeyValue( "scale",tostring(scale))
+	-- blastspr:SetKeyValue( "framerate",60)
+	-- blastspr:SetKeyValue( "spawnflags","1")
+	-- blastspr:SetKeyValue( "brightness","255")
+	-- blastspr:SetKeyValue( "angles","0 0 0")
+	-- blastspr:SetKeyValue( "rendermode","9")
+	-- blastspr:SetKeyValue( "renderamt","255")
+	-- blastspr:Spawn()
+	-- blastspr:Fire("kill","",0.45)							//remove it after 0.45 seconds
+-- end
+
+local function ParticleSystem(name,pos,ang,parent)
+	local ent = ents.Create( "info_particle_system" )
+	ent:SetPos(pos)
+	ent:SetAngles(ang)
+	ent:SetKeyValue( "effect_name", name)
+	ent:SetKeyValue( "start_active", "1")
+	ent:Spawn()
+	ent:Activate()
+	if parent then
+		ent:SetParent(parent)
 	end
+	return ent
 end
 
-function SWEP:ShootEffect(EFFECTSTR,startpos,endpos)
-	local pPlayer=self.Owner;
-	if !pPlayer then return end
-	local view;
-	if CLIENT then view=GetViewEntity() else view=pPlayer:GetViewEntity() end
-		if ( !pPlayer:IsNPC() && view:IsPlayer() ) then
-			util.ParticleTracerEx( EFFECTSTR, self.Weapon:GetAttachment( self.Weapon:LookupAttachment( "muzzle" ) ).Pos,endpos, true, pPlayer:GetViewModel():EntIndex(), pPlayer:GetViewModel():LookupAttachment( "muzzle" ) );
-		else
-			util.ParticleTracerEx( EFFECTSTR, pPlayer:GetAttachment( pPlayer:LookupAttachment( "anim_attachment_rh" ) ).Pos,endpos, true,pPlayer:EntIndex(), pPlayer:LookupAttachment( "anim_attachment_rh" ) );
-		end
-end
-
-function SWEP:DispatchEffect(EFFECTSTR)
-	local pPlayer=self.Owner;
-	if !pPlayer then return end
-	local view;
-	if CLIENT then view=GetViewEntity() else view=pPlayer:GetViewEntity() end
-		if ( !pPlayer:IsNPC() && view:IsPlayer() ) then
-			ParticleEffectAttach( EFFECTSTR, PATTACH_POINT_FOLLOW, pPlayer:GetViewModel(), pPlayer:GetViewModel():LookupAttachment( "muzzle" ) );
-		else
-			ParticleEffectAttach( EFFECTSTR, PATTACH_POINT_FOLLOW, pPlayer, pPlayer:LookupAttachment( "anim_attachment_rh" ) );
-		end
-end
-
-function SWEP:CreateBlast(scale,pos)
-	if CLIENT then return end
-	local blastspr = ents.Create("env_sprite");			//took me hours to understand how this damn
-	blastspr:SetPos( pos );								//entity works
-	blastspr:SetKeyValue( "model", "sprites/vortring1.vmt")//the damn vortigaunt beam ring
-	blastspr:SetKeyValue( "scale",tostring(scale))
-	blastspr:SetKeyValue( "framerate",60)
-	blastspr:SetKeyValue( "spawnflags","1")
-	blastspr:SetKeyValue( "brightness","255")
-	blastspr:SetKeyValue( "angles","0 0 0")
-	blastspr:SetKeyValue( "rendermode","9")
-	blastspr:SetKeyValue( "renderamt","255")
-	blastspr:Spawn()
-	blastspr:Fire("kill","",0.45)							//remove it after 0.45 seconds
+function SWEP:ShootBall(type,startpos,endpos,dir)
+	-- PrecacheParticleSystem("portal_projectile_1_ball")
+	-- PrecacheParticleSystem("portal_projectile_2_ball")
+	-- local name = (type==TYPE_BLUE and "portal_projectile_1_ball" or "portal_projectile_2_ball")
+	-- local ball = ParticleSystem(name,startpos,dir:Angle())
+	
+	-- local speed = 1
+	-- function ball:Think()
+		-- ball:SetPos(ball:GetPos()+dir*(speed*FrameTime()))
+	-- end
+	-- timer.Simple(5, ball.Remove)
+	
 end
 
 function SWEP:ShootPortal( type )
@@ -381,10 +410,12 @@ function SWEP:ShootPortal( type )
         local trace = util.TraceLine( tr )
        
         if IsFirstTimePredicted() and owner:IsValid() then --Predict that motha' fucka'
-       
+				
+				//shoot a ball.
+				self:ShootBall(type,tr.start,tr.endpos,trace.Normal)
+				
                 if ( trace.Hit and trace.HitWorld ) then
-
-						owner:DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY) --doesn't work?
+						
                        
                         if SERVER then
                                
@@ -407,10 +438,12 @@ function SWEP:ShootPortal( type )
                                                 if type == TYPE_BLUE then
                                                
                                                         owner:SetNWEntity( "Portal:Blue", Portal )
+														Portal:SetNetworkedBool("blue",true,true)
                                                        
                                                 else
                                                
                                                         owner:SetNWEntity( "Portal:Orange", Portal )
+														Portal:SetNetworkedBool("blue",false,true)
                                                        
                                                 end
                                                
@@ -428,6 +461,7 @@ function SWEP:ShootPortal( type )
                                                 EntToUse:SuccessEffect()
                                                
                                         end
+										
                                        
                                 else
                                
@@ -467,6 +501,7 @@ end
 function SWEP:SecondaryAttack()
 
         self:ShootPortal( TYPE_ORANGE )
+		self.Weapon:SetNetworkedInt("LastPortal",2)
 		self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
 		self:EmitSound( self.ShootOrange, 100, 100 )
 		self.Owner:DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY)
@@ -477,6 +512,7 @@ end
 function SWEP:PrimaryAttack()
        
         self:ShootPortal( TYPE_BLUE )
+		self.Weapon:SetNetworkedInt("LastPortal",1)
 		self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
 		self:EmitSound( self.ShootBlue, 100, 100 )
 		self.Owner:DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY)
@@ -505,12 +541,12 @@ function SWEP:CleanPortals()
         end
        
         if cleaned then
-       
-                self.Weapon:SendWeaponAnim( ACT_VM_FIZZLE )
-				self.Weapon:EmitSound( "portal_fizzle"..math.random(1,2)..".wav" )
-				
-               
-        end
+
+            self.Weapon:SendWeaponAnim( ACT_VM_FIZZLE )
+			self.Weapon:SetNetworkedInt("LastPortal",0)
+			self.Weapon:EmitSound( "portal_fizzle"..math.random(1,2)..".wav" )
+        
+		end
        
 end
 
@@ -525,6 +561,7 @@ end
 function SWEP:Deploy()
        
         self.Weapon:SendWeaponAnim( ACT_VM_DRAW )
+		self:CheckExisting()
 		self:IdleStuff()
         return true
        
@@ -541,7 +578,6 @@ function SWEP:Think()
 		self:SendWeaponAnim(ACT_VM_IDLE)
 	end
 
-
 end
 
 function SWEP:DrawHUD()
@@ -554,4 +590,18 @@ end
 function SWEP:IdleStuff()
 	if self.EnableIdle then return end
 	self.idledelay = CurTime() +self:SequenceDuration()
+end
+
+function SWEP:CheckExisting()
+	if blueportal != nil && blueportal != nil then return end
+	for _,v in pairs(ents.FindByClass("prop_portal")) do
+		local own = v.Ownr
+		if v != nil && own == self.Owner then
+			if v.type == TYPE_BLUE && self.blueportal == nil then
+				self.blueportal = v
+			elseif v.type == TYPE_ORANGE && self.orangeportal == nil then
+				self.orangeportal = v
+			end
+		end
+	end
 end

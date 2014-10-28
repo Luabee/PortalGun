@@ -1,5 +1,6 @@
 include("shared.lua")
 
+local reticle = CreateClientConVar("portal_reticle","1",true,false)
 
 /*---------------------------------------------------------
    Name: CalcViewModelView
@@ -37,3 +38,65 @@ function SWEP:CalcViewModelView(ViewModel, oldPos, oldAng, pos, ang)
 	
 	return oldPos + oldAng:Up() * SwayDelta.p + oldAng:Right() * SwayDelta.y + oldAng:Up() * oldAng.p / 90 * 2, oldAng
 end
+
+surface.CreateFont( "xhair", {
+	font = "HL2Cross", 
+	size = 40, 
+	weight = 400, 
+	blursize = 0, 
+	scanlines = 0, 
+	antialias = true, 
+	underline = false, 
+	italic = false, 
+	strikeout = false, 
+	symbol = false, 
+	rotary = false, 
+	shadow = false, 
+	additive = false, 
+	outline = false, 
+} )
+local cBlu = Color(80,144,255,255)
+local cOrg = Color(255,200,80,255)
+function Overlay()
+	if !LocalPlayer() || !LocalPlayer():Alive() || !LocalPlayer():GetActiveWeapon() || !(LocalPlayer():GetActiveWeapon():IsValid()) then return end
+	if LocalPlayer():GetActiveWeapon():GetClass() != "weapon_portalgun" then return end
+	if !reticle:GetBool() then return end
+
+	local w = ScrW()
+	local h = ScrH()
+	local cX = w / 2
+	local cY = h / 2
+	local trd = {}
+		trd.start = LocalPlayer():GetShootPos()
+		trd.endpos = trd.start + LocalPlayer():GetAimVector() * 4000
+		trd.mask = MASK_SOLID_BRUSHONLY
+	local trc = util.TraceLine(trd)
+	
+	local cRit = (LocalPlayer():GetActiveWeapon():GetNetworkedBool("OnlyBlue") and cBlu or cOrg)
+	
+	local validMat = (trc.MatType == 67 || trc.MatType == 68)
+	local validBlu = true
+	local validRed = true
+	local hEnt = LocalPlayer():GetEyeTrace().Entity
+	if hEnt != nil && hEnt:IsValid() && hEnt:GetClass() == "prop_portal" then
+		if hEnt:GetNetworkedBool("blue") then
+			validRed = false
+		else
+			validBlu = false
+		end
+	end
+	local bBrack = (validMat && validBlu) and "[" or "{"
+	local rBrack = (validMat && validRed) and "]" or "}"
+	draw.SimpleText(bBrack,"xhair",cX-18,cY,cBlu,2,1)
+	draw.SimpleText(rBrack,"xhair",cX+17,cY,cRit,0,1)
+		
+	local lastPort = LocalPlayer():GetActiveWeapon():GetNetworkedInt("LastPortal")
+	
+	bBrack = (lastPort == TYPE_BLUE) and "[" or "{"
+	rBrack = (lastPort == TYPE_ORANGE) and "]" or "}"
+	draw.SimpleText(bBrack,"xhair",cX-25,cY,cBlu,2,1)
+	draw.SimpleText(rBrack,"xhair",cX+24,cY,cRit,0,1)
+end
+
+	
+hook.Add("HUDPaint","DoPortalOverlays",Overlay)

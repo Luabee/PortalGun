@@ -19,7 +19,7 @@ function Plymeta:GetHeadPos(v)
 end
 
 
-function ENT:SpawnFunction( ply, tr )
+function ENT:SpawnFunction( ply, tr ) --unused.
 	if ( !tr.Hit ) then return end
 	
 	local SpawnPos = tr.HitPos + tr.HitNormal * 16
@@ -321,10 +321,11 @@ end
 
 --Better touch prediction:
 function ENT:Think()
-	for k,v in pairs(player.GetAll()) do
-		if (not self:PlayerWithinBounds(v,false)) and self:PlayerWithinBounds(v,true) then
-			print("Going to be inside the portal next frame.")
-			self:PlayerEnterPortal(v)
+	if self:GetNWBool("Potal:Activated",false) and self:GetNWBool("Potal:Linked",false) then
+		for k,v in pairs(player.GetAll()) do
+			if (not self:PlayerWithinBounds(v,false)) and self:PlayerWithinBounds(v,true) then
+				self:PlayerEnterPortal(v)
+			end
 		end
 	end
 end
@@ -405,9 +406,19 @@ end
 function ENT:PlayerWithinBounds(ent,predicting)
 	local offset = Vector(0,0,0)
 	if predicting then offset = ent:GetVelocity()*FrameTime() end
+	
+	if self:OnFloor() then
+		self:SetPos(self:GetPos() - Vector(0,0,20))
+	end
+	
 	local plyPos = self:WorldToLocal(ent:GetPos()+offset)
 	local headPos = self:WorldToLocal(ent:GetHeadPos()+offset)
 	local frontDist = math.min((ent:GetPos()+offset):PlaneDistance(self:GetPos(),self:GetForward()), (ent:GetHeadPos()+offset):PlaneDistance(self:GetPos(),self:GetForward()))
+	
+	if self:OnFloor() then
+		self:SetPos(self:GetPos() + Vector(0,0,20))
+	end
+	
 	if frontDist > 22.29 then 
 		return false 
 	end

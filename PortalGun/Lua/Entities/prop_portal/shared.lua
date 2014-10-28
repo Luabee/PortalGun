@@ -111,21 +111,24 @@ function ENT:GetFloorOffset(pos1)
 end
 
 function ENT:IsHorizontal()
-	return self:GetAngles().p == 0
+	local p = math.Round(self:GetAngles().p)
+	return p == 0
 end
 function ENT:OnFloor()
-	return self:GetAngles().p == 270 or self:GetAngles().p == -90
+	local p = math.Round(self:GetAngles().p)
+	return p == 270 or p == -90
 end
 function ENT:OnRoof()
-	return self:GetAngles().p >= 90 and self:GetAngles().p <= 180
+	local p = math.Round(self:GetAngles().p)
+	return p >= 90 and p <= 180
 end
 
-local function PlayerPickup( ply, ent )
-	if ent:GetClass() == "prop_portal" then
+local function PlayerPickup( ply, ent )	
+	if ent:GetClass() == "prop_portal" or ent:GetModel() == "models/blackops/portal_sides.mdl" then
 		print("No Pickup.")
 		return false
 	end
 end
--- hook.Add( "PhysgunPickup", "NoPickupPortals", PlayerPickup )
+hook.Add( "PhysgunPickup", "NoPickupPortals", PlayerPickup )
 hook.Add( "GravGunPickupAllowed", "NoPickupPortals", PlayerPickup )
 hook.Add( "GravGunPunt", "NoPickupPortals", PlayerPickup )

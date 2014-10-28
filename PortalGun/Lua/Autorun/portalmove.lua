@@ -75,6 +75,9 @@ function ipMove( ply, mv )
                
                 local pos = mv:GetOrigin()
                 local pOrg = portal:GetPos()
+				if portal:OnFloor() then
+					pOrg = pOrg - Vector(0,0,20)
+				end
                 local pAng = portal:GetAngles()
 				
 				// calculate acceleration for this frame.

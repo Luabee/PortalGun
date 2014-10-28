@@ -134,6 +134,8 @@ local bluebordermat = surface.GetTextureID( "sprites/blborder" )
 local orangebordermat = surface.GetTextureID( "sprites/ogborder" )
 local bluebetabordermat = surface.GetTextureID( "sprites/blueborder" )
 local orangebetabordermat = surface.GetTextureID( "sprites/redborder" )
+local nonlinkedbluebeta = surface.GetTextureID( "sprites/n0blue" )
+local nonlinkedorangebeta = surface.GetTextureID( "sprites/n0red" )
 
 function ENT:DrawPortalEffects( portaltype )
 
@@ -162,14 +164,29 @@ function ENT:DrawPortalEffects( portaltype )
                 if ( RENDERING_PORTAL or !self:GetNWBool( "Potal:Linked", false ) ) then
                
                         if portaltype == TYPE_BLUE then
+						
+						if betabordersenabled:GetBool() then
+                               
+                               surface.SetTexture( nonlinkedbluebeta )
+							   
+							   else
                        
                                 surface.SetTexture( nonlinkedblue )
+						
+						end
                                
                         elseif portaltype == TYPE_ORANGE then
+						
+						if betabordersenabled:GetBool() then
+                               
+                               surface.SetTexture( nonlinkedorangebeta )
+							   
+							   else
                        
                                 surface.SetTexture( nonlinkedorange )
                                
                         end
+						end
                        
                         surface.DrawTexturedRect( 0, 0, width / res , height / res )
                        
