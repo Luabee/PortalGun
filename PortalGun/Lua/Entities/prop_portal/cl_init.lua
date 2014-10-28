@@ -1,9 +1,10 @@
 include( "shared.lua" )
 
 local dlightenabled = CreateClientConVar("portal_dynamic_light", "0", true) --Kinda laggy, default it to off
-local lightteleport = CreateClientConVar("portal_light_teleport", "0", true)
+-- local lightteleport = CreateClientConVar("portal_light_teleport", "0", true)
 local bordersenabled = CreateClientConVar("portal_borders", "1", true)
 local betabordersenabled = CreateClientConVar("portal_beta_borders", "1", true)
+local renderportals = CreateClientConVar("portal_render", 1, true)
 
 local texFSB = render.GetSuperFPTex() -- I'm really not sure if I should even be using these D:
 local texFSB2 = render.GetSuperFPTex2()
@@ -11,13 +12,16 @@ local texFSB2 = render.GetSuperFPTex2()
  -- Make our own material to use, so we aren't messing with other effects.
 local PortalMaterial = CreateMaterial(
                 "PortalMaterial",
-                "GMODScreenspace",
-                -- "VertexLitGeneric",
+                "UnlitGeneric",
+                -- "GMODScreenspace",
                 {
                         [ '$basetexture' ] = texFSB,
-                        //[ '$basetexturetransform' ] = "center .5 .5 scale 1 1 rotate 0 translate 0 0",
-                        [ '$texturealpha' ] = "0",
-                        [ '$vertexalpha' ] = "1",
+                        [ '$model' ] = "1",
+                        -- [ '$basetexturetransform' ] = "center .5 .5 scale 1 1 rotate 0 translate 0 0",
+                        [ '$alphatest' ] = "0",
+                        [ '$additive' ] = "0",
+                        [ '$translucent' ] = "0",
+                        [ '$ignorez' ] = "0"
                 }
         )
 
@@ -38,24 +42,44 @@ function ENT:Initialize( )
         self:SetRenderBounds( self:OBBMins()*20, self:OBBMaxs()*20 )
        
         self.openpercent = 0
+		
+		self:SetRenderMode(RENDERMODE_TRANSALPHA)
+		
+		if self:OnFloor() then
+			self:SetRenderOrigin( self:GetPos() - Vector(0,0,20))
+		else
+			self:SetRenderOrigin( self:GetPos() )
+		end
+		
+		-- self:SetRenderClipPlaneEnabled( true )
+		-- self:SetRenderClipPlane( self:GetForward(), 5 )
        
 end
 
 usermessage.Hook("Portal:Moved", function(umsg)
         local ent = umsg:ReadEntity()
+		local pos = umsg:ReadVector()
+		local ang = umsg:ReadAngle()
         if ent and ent:IsValid() and ent.openpercent then
                 ent.openpercent = 0
 				
+				ent:SetAngles(ang)
+				if ent:OnFloor() then
+					ent:SetRenderOrigin( pos - Vector(0,0,20) )
+				else
+					ent:SetRenderOrigin(pos)
+				end
+				-- ent:SetRenderClipPlane( ent:GetForward(), 5 )
         end
 end)
 
 --I think this is from sassilization..
 local function IsInFront( posA, posB, normal )
 
-        -- local Vec1 = ( posB - posA ):GetNormalized()
+        local Vec1 = ( posB - posA ):GetNormalized()
 
-        -- return ( normal:Dot( Vec1 ) < 0 )
-		return true
+        return ( normal:Dot( Vec1 ) < 0 )
+		-- return true
 
 end
 
@@ -87,19 +111,21 @@ function ENT:Think()
                 end
                        
         end]]
-       
+       -- if AvgFPS() > 60 then
         local dlight = DynamicLight( self:EntIndex() )
         if dlight then
-                local col = glowcolor
-                dlight.Pos = self:GetPos() + self:GetAngles():Forward()
-                dlight.r = col.r
-                dlight.g = col.g
-                dlight.b = col.b
-                dlight.Brightness = 2
-                dlight.Decay = 256
-                dlight.Size = self.openpercent * 256
-                dlight.DieTime = CurTime() + 0.1
+			local col = glowcolor
+			dlight.Pos = self:GetRenderOrigin() + self:GetAngles():Forward()
+			dlight.r = col.r
+			dlight.g = col.g
+			dlight.b = col.b
+			dlight.Brightness = 2
+			dlight.Decay = 256
+			dlight.Size = self.openpercent * 256
+			dlight.DieTime = CurTime() + .9
+			dlight.Style = 5
         end
+	   -- end
 end
 
 local nonlinkedblue = surface.GetTextureID( "sprites/noblue" )
@@ -127,13 +153,13 @@ function ENT:DrawPortalEffects( portaltype )
         ang:RotateAroundAxis( ang:Right(), -90 )
         ang:RotateAroundAxis( ang:Up(), 90 )
        
-        local origin = self:GetPos() + ( self:GetForward() * 0.1 ) - ( self:GetUp() * height / -2 ) - ( self:GetRight() * width / -2 )
+        local origin = self:GetRenderOrigin() + ( self:GetForward() * 0.1 ) - ( self:GetUp() * height / -2 ) - ( self:GetRight() * width / -2 )
        
         cam.Start3D2D( origin, ang, res )
        
                 surface.SetDrawColor( 255, 255, 255, 255 )
        
-                if ( RENDERING_PORTAL or RENDERING_MIRROR or !self:GetNWBool( "Potal:Linked", false ) ) then
+                if ( RENDERING_PORTAL or !self:GetNWBool( "Potal:Linked", false ) ) then
                
                         if portaltype == TYPE_BLUE then
                        
@@ -148,23 +174,23 @@ function ENT:DrawPortalEffects( portaltype )
                         surface.DrawTexturedRect( 0, 0, width / res , height / res )
                        
                 end
-               
-                if !self:GetNWBool( "Potal:Linked", false ) then
-               
-                        if portaltype == TYPE_BLUE then
-                       
-                                surface.SetTexture( nonlinkedblue )
-                               
-                        elseif portaltype == TYPE_ORANGE then
-                       
-                                surface.SetTexture( nonlinkedorange )
-                               
-                        end
-                       
-                        surface.DrawTexturedRect( 0, 0, width / res , height / res )
-                       
-                end
-               
+				
+			   if !self:GetNWBool( "Potal:Activated", false ) then
+			   
+						if portaltype == TYPE_BLUE then
+					   
+								surface.SetTexture( nonlinkedblue )
+							   
+						elseif portaltype == TYPE_ORANGE then
+					   
+								surface.SetTexture( nonlinkedorange )
+							   
+						end
+					   
+						surface.DrawTexturedRect( 0, 0, width / res , height / res )
+					   
+				end
+				
                 if bordersenabled:GetBool() == true then
                         if portaltype == TYPE_BLUE then
                                
@@ -201,64 +227,75 @@ function ENT:DrawPortalEffects( portaltype )
         cam.End3D2D()
        
 end
-
 function ENT:Draw()
-
-        local viewent = GetViewEntity()
-        local pos = ( IsValid( viewent ) and viewent != LocalPlayer() ) and GetViewEntity():GetPos() or EyePos()
-
-        if IsInFront( pos, self:GetPos(), self:GetForward() ) and self:GetNWBool("Potal:Activated",false) then
-
-
-                local portaltype = self:GetNWInt( "Potal:PortalType",TYPE_BLUE )
-
-                render.ClearStencil() -- Make sure the stencil buffer is all zeroes before we begin
-                render.SetStencilEnable( true )
-				render.SetStencilWriteMask(255)
-				render.SetStencilTestMask(255)
-                render.SetStencilFailOperation( STENCILOPERATION_KEEP )
-                render.SetStencilZFailOperation( STENCILOPERATION_KEEP )  -- Don't change anything if the pixel is occoludded (so we don't see things thru walls)
-                render.SetStencilPassOperation( STENCILOPERATION_REPLACE ) -- Replace the value of the buffer's pixel with the reference value
-                render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_ALWAYS ) -- Always replace regardless of whatever is in the stencil buffer currently
-
-                render.SetStencilReferenceValue( 1 )
-               
-                local percentopen = self.openpercent
-                self:SetModelScale( percentopen,0 )
-                self:DrawModel()
-               
-                render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_EQUAL )
-                render.SetStencilPassOperation( STENCILOPERATION_REPLACE )
-               
-                render.SetStencilReferenceValue( 1 )
-               
-                local ToRT = portaltype == TYPE_BLUE and texFSB or texFSB2
-       
-                PortalMaterial:SetTexture( "$basetexture", ToRT )
-                render.SetMaterial( PortalMaterial )
-                render.DrawScreenQuad()
-               
-                render.SetStencilEnable( false )
-               
-                self:DrawPortalEffects( portaltype )
-       
-        end
-
+	self:SetModelScale( self.openpercent,0 )
+	self:DrawModel()
+	self:SetColor(Color(255,255,255,0))
 end
+function ENT:DrawPortal()
+	local viewent = GetViewEntity()
+	local pos = ( IsValid( viewent ) and viewent != LocalPlayer() ) and GetViewEntity():GetPos() or EyePos()
+
+	if IsInFront( pos, self:GetRenderOrigin(), self:GetForward() ) and self:GetNWBool("Potal:Activated",false) then
+		
+		render.ClearStencil() -- Make sure the stencil buffer is all zeroes before we begin
+		render.SetStencilEnable( true )
+		
+			cam.Start3D2D(self:GetRenderOrigin(),self:GetAngles(),1)
+				render.SetStencilWriteMask(3)
+				render.SetStencilTestMask(3)
+				render.SetStencilFailOperation( STENCILOPERATION_KEEP )
+				render.SetStencilZFailOperation( STENCILOPERATION_KEEP )  -- Don't change anything if the pixel is occoludded (so we don't see things thru walls)
+				render.SetStencilPassOperation( STENCILOPERATION_REPLACE ) -- Replace the value of the buffer's pixel with the reference value
+				render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_ALWAYS) -- Always replace regardless of whatever is in the stencil buffer currently
+
+				render.SetStencilReferenceValue( 1 )
+			   
+				local percentopen = self.openpercent
+				self:SetModelScale( percentopen,0 )
+				self:DrawModel()
+				
+				render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_EQUAL )
+				
+				local portaltype = self:GetNWInt( "Potal:PortalType",TYPE_BLUE )
+				if renderportals:GetBool() then
+					local ToRT = portaltype == TYPE_BLUE and texFSB or texFSB2
+					PortalMaterial:SetTexture( "$basetexture", ToRT )
+					render.SetMaterial( PortalMaterial )
+				else
+					local color = Material("sprites/blueNoDraw.png", "unlitgeneric")
+					if portaltype == TYPE_ORANGE then
+						color = Material("sprites/orangeNoDraw.png", "unlitgeneric")
+					end
+					render.SetMaterial(color)
+				end
+				
+				render.DrawScreenQuad()
+			cam.End3D2D()
+		
+		render.SetStencilEnable( false )
+		
+		self:DrawPortalEffects( portaltype )
+	end
+end
+hook.Add("PostDrawOpaqueRenderables","DrawPortals", function()
+	for k,v in pairs(ents.FindByClass("prop_portal"))do
+		v:DrawPortal()
+	end
+end)
 
 function ENT:RenderPortal( origin, angles)
-
-        local portal = self:GetNWEntity( "Potal:Other", nil )
-
-        if IsValid( portal ) and self:GetNWBool( "Potal:Linked", false ) and self:GetNWBool( "Potal:Activated", false ) then
+	if renderportals:GetBool() then
+		local portal = self:GetNWEntity( "Potal:Other", nil )
+		if IsValid( portal ) and self:GetNWBool( "Potal:Linked", false ) and self:GetNWBool( "Potal:Activated", false ) then
    
 			local portaltype = self:GetNWInt( "Potal:PortalType", TYPE_BLUE )
 		   
 			local normal = self:GetForward()
-			local distance = normal:Dot( self:GetPos() )
+			local distance = normal:Dot( self:GetRenderOrigin() )
 		   
 			othernormal = portal:GetForward()
-			otherdistance = othernormal:Dot( portal:GetPos() )
+			otherdistance = othernormal:Dot( portal:GetRenderOrigin() )
 		   
 			// quick access
 			local forward = angles:Forward()
@@ -283,6 +320,9 @@ function ENT:RenderPortal( origin, angles)
 			local LocalAngles = self:WorldToLocalAngles( angles )
 		   
 			// repair
+			if self:OnFloor() then
+				LocalOrigin.x = LocalOrigin.x+20
+			end
 			LocalOrigin.y = -LocalOrigin.y
 			LocalAngles.y = -LocalAngles.y
 			LocalAngles.r = -LocalAngles.r
@@ -304,25 +344,24 @@ function ENT:RenderPortal( origin, angles)
 			render.SetRenderTarget( ToRT )
 				render.PushCustomClipPlane( othernormal, otherdistance )
 				local b = render.EnableClipping(true)
-					render.Clear( 0, 0, 0, 255 )
-					render.ClearDepth()
-					render.ClearStencil()
+					-- render.Clear( 0, 0, 0, 255 )
+					-- render.ClearDepth()
+					-- render.ClearStencil()
+					
+					-- render.SetLightingMode(1)
 					portal:SetNoDraw( true )
 						RENDERING_PORTAL = true
 							render.RenderView( view )
 							render.UpdateScreenEffectTexture()
 						RENDERING_PORTAL = false
 					portal:SetNoDraw( false )
-
+					-- render.SetLightingMode(0)
+					
 				render.PopCustomClipPlane()
 				render.EnableClipping(b)
-			render.SetRenderTarget( oldrt )
-			
-
-				
-               
-        end
-
+			render.SetRenderTarget( oldrt ) 
+		end
+	end
 end
 
 /*------------------------------------
@@ -344,7 +383,7 @@ hook.Add( "RenderScene", "Portal.RenderScene", function( Origin, Angles )
 	for k, v in ipairs( ents.FindByClass( "prop_portal" ) ) do
 		local viewent = GetViewEntity()
 		local pos = ( IsValid( viewent ) and viewent != LocalPlayer() ) and GetViewEntity():GetPos() or Origin
-		if IsInFront( pos, v:GetPos(), v:GetForward() ) then --if the player is in front of the portal, then render it..
+		if IsInFront( Origin, v:GetRenderOrigin(), v:GetForward() ) then --if the player is in front of the portal, then render it..
 			// call into it to render
 			v:RenderPortal( Origin, Angles )
 		end
@@ -361,7 +400,7 @@ hook.Add( "HUDPaint", "Portal.BlueMonitor", function( w,h )
 				surface.DrawLine(ScrW()/2-10,ScrH()/2,ScrW()/2+10,ScrH()/2)
 				surface.DrawLine(ScrW()/2,ScrH()/2-10,ScrW()/2,ScrH()/2+10)
 				
-				render.EnableClipping(true)
+				local b = render.EnableClipping(true)
 				render.PushCustomClipPlane( othernormal, otherdistance )
 					view.w = 500
 					view.h = 280
@@ -369,7 +408,7 @@ hook.Add( "HUDPaint", "Portal.BlueMonitor", function( w,h )
 						render.RenderView( view )
 					RENDERING_PORTAL = false
 				render.PopCustomClipPlane( )
-				render.EnableClipping(false)
+				render.EnableClipping(b)
 			end
 
 		end
@@ -396,6 +435,7 @@ usermessage.Hook( "Portal:ObjectInPortal", function(umsg)
         local ent = umsg:ReadEntity()
         if IsValid( ent ) and IsValid( portal ) then
                 ent.InPortal = portal
+                ent:SetRenderClipPlaneEnabled( true )
         end
 end )
 
@@ -413,12 +453,13 @@ hook.Add( "RenderScreenspaceEffects", "Portal.RenderScreenspaceEffects", functio
                         --local plane = Plane(v.InPortal:GetForward(),v.InPortal:GetPos())
                        
                         local normal = v.InPortal:GetForward()
-                        local distance = normal:Dot( v.InPortal:GetPos() )
+                        local distance = normal:Dot( v.InPortal:GetRenderOrigin() )
                        
-                        v:SetRenderClipPlaneEnabled( true )
+						v:SetRenderClipPlaneEnabled(true)
                         v:SetRenderClipPlane( normal, distance )
                 end
         end
+		
 end )
 
 /*------------------------------------
@@ -460,32 +501,39 @@ usermessage.Hook("DebugOverlay_LineTrace", function(umsg)
 	if b then col = Color(255,0,0,255) else col = Color(0,0,255,255) end
 	debugoverlay.Line(p1,p2,5, col)
 end)
-local point = Vector(0,0,0)
-local CAM_POS = Vector(0,0,0)
 usermessage.Hook("DebugOverlay_Cross", function(umsg)
-	point = umsg:ReadVector()
+	local point = umsg:ReadVector()
 	local b = umsg:ReadBool()
 	if b then 
-		b = Color(255,0,0) 
+		b = Color(0,255,0)
 	else 
-		b = Color(0,0,255)
+		b = Color(255,0,0) 
 	end
-	debugoverlay.Cross(point,5, 5, b)
-	debugoverlay.Box(point, Vector(-5,-5,-5), Vector(5,5,5), FrameTime(), b)
-	debugoverlay.Cross(CAM_POS, 10, FrameTime(), Color(0,255,0), true)
-end)
-concommand.Add("CamSave", function(p,c,a)
-	if CAM_POS == Vector(0,0,0) then
-		CAM_POS = point
-	else
-		CAM_POS = Vector(0,0,0)
-	end
+	debugoverlay.Cross(point,5, 5, b,true)
 end)
 
 hook.Add("Think", "Reset Camera Roll", function()
 	local a = LocalPlayer():EyeAngles()
 	if a.r != 0 then
-		a.r = math.Approach(a.r, 0, FrameTime()*270)
+		a.r = math.Approach(a.r, 0, FrameTime()*180)
 		LocalPlayer():SetEyeAngles(a)
 	end
-end)
+end) 
+
+local fps = {30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30}
+function AvgFPS()
+	table.remove(fps,1)
+	table.insert(fps,1/FrameTime())
+	local avg = 0
+	for i=1,#fps do
+		avg = avg+fps[i]
+	end
+	return avg/#fps
+end
+hook.Add("Tick","Calc AVG FPS",AvgFPS)
+
+-- hook.Add("HUDPaint","PrintVelocity", function() 
+	
+	-- draw.SimpleText(LocalPlayer():GetVelocity():__tostring(),"DermaLarge",100,100,Color(100,255,100),TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+
+-- end)

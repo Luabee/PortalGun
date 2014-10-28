@@ -7,9 +7,17 @@ ENT.PortalType = TYPE_BLUE
 ENT.Activated = false
 ENT.KeyValues = {}
 
+local Plymeta = FindMetaTable("Player")
+function Plymeta:SetHeadPos(v)
+	v.z = v.z-64
+	self:SetPos(v)
+end
+function Plymeta:GetHeadPos(v)
+	local r = self:GetPos(v)
+	r.z = r.z+64
+	return self:EyePos()
+end
 
-
---resource.AddFile("materials/sprites/noblue.mdl")
 
 function ENT:SpawnFunction( ply, tr )
 	if ( !tr.Hit ) then return end
@@ -36,12 +44,12 @@ end
 	Initialize()
 ------------------------------------*/
 function ENT:Initialize( )
-
 	self:SetModel( "models/blackops/portal.mdl" )
-	--self:SetModel( "models/portals/portal1_renderfix.mdl" )
+	-- self:SetModel( "models/portals/portal1_renderfix.mdl" )
 	self:PhysicsInit(SOLID_VPHYSICS)
 	self:SetSolid(SOLID_VPHYSICS)
 	self:SetCollisionGroup(COLLISION_GROUP_WORLD)
+	self:SetRenderMode(RENDERMODE_TRANSALPHA)
 	self:SetMoveType( MOVETYPE_NONE )
 	self:PhysWake()
 	self:DrawShadow(false)
@@ -50,7 +58,9 @@ function ENT:Initialize( )
 	self:SetNWBool("Potal:Linked",false)
 	self:SetNWInt("Potal:PortalType",self.PortalType)
 	
-	self:SetPos( self:GetPos() + self:GetForward() * 0.1 + self:GetUp() * 5 )
+	if self:OnFloor() then
+		self:SetPos( self:GetPos() + Vector(0,0,20) )
+	end
 	
 	self.Sides = ents.Create( "prop_physics" )
 	self.Sides:SetModel( "models/blackops/portal_sides.mdl" )
@@ -98,20 +108,18 @@ function ENT:CleanMeUp()
 
 	PrecacheParticleSystem("portal_2_close")
 	PrecacheParticleSystem("portal_1_close")
-
-	ParticleEffect("portal_1_close",self:GetPos(),ang,nil)
-
-	local ent = ents.Create( "info_particle_system" )
-	ent:SetPos(self:GetPos())
-	ent:SetAngles(ang)
-	if self.PortalType == TYPE_BLUE then
-		ent:SetKeyValue( "effect_name", "portal_1_close")
-	elseif self.PortalType == TYPE_ORANGE then
-		ent:SetKeyValue( "effect_name", "portal_2_close")
+	
+	local pos = self:GetPos()
+	if self:OnFloor() then
+		pos = pos-Vector(0,0,20)
 	end
-	ent:SetKeyValue( "start_active", "1")
-	ent:Spawn()
-	ent:Activate()
+	
+	if self.PortalType == TYPE_BLUE then
+		ParticleEffect("portal_1_close",pos,ang,nil)
+	else
+		ParticleEffect("portal_2_close",pos,ang,nil)
+	end
+
 	timer.Simple(5,function()
 		if ent and ent:IsValid() then
 			ent:Remove()
@@ -126,25 +134,31 @@ function ENT:MoveToNewPos(pos,newang) --Called by the swep, used if a player alr
 	ang:RotateAroundAxis(ang:Right(),-90)
 	ang:RotateAroundAxis(ang:Forward(),0)
 	ang:RotateAroundAxis(ang:Up(),90)
-
-	local ent = ents.Create( "info_particle_system" )
-	ent:SetPos(self:GetPos())
-	ent:SetAngles(ang)
-	if self.PortalType == TYPE_BLUE then
-		ent:SetKeyValue( "effect_name", "portal_1_close")
-	elseif self.PortalType == TYPE_ORANGE then
-		ent:SetKeyValue( "effect_name", "portal_2_close")
+	
+	self:SetAngles(newang)
+	
+	local effectpos = self:GetPos()
+	if self:OnFloor() then
+		effectpos = effectpos-Vector(0,0,20)
 	end
-	ent:SetKeyValue( "start_active", "1")
-	ent:Spawn()
-	ent:Activate()
+	self.VacuumEffect:SetPos(effectpos)
+	self.EdgeEffect:SetPos(effectpos)
+	
+	if self.PortalType == TYPE_BLUE then
+		ParticleEffect("portal_1_close",effectpos,ang,nil)
+	else
+		ParticleEffect("portal_2_close",effectpos,ang,nil)
+	end
 	
 	self:BootPlayer()
 	if IsValid(self:GetOther()) then
 		self:GetOther():BootPlayer()
 	end
-	self:SetPos(pos)
-	self:SetAngles(newang)
+	
+	if self:OnFloor() then
+		pos.z = pos.z + 20
+	end
+	self:SetPos( pos )
 	
 	if IsValid( self.Sides ) then
 		self.Sides:SetPos(pos)
@@ -153,22 +167,11 @@ function ENT:MoveToNewPos(pos,newang) --Called by the swep, used if a player alr
 	
 	umsg.Start("Portal:Moved" )
 	umsg.Entity( self )
+	umsg.Vector(pos)
+	umsg.Angle(newang)
 	umsg.End()
 	
-	for _,ent in pairs(ents.FindInSphere(self:GetPos()+self:GetAngles():Forward()*10,60)) do
-		if ent:GetModel() != "models/blackops/portal_sides.mdl" and (ent:GetClass() == "prop_physics" or ent:GetClass() == "prop_physics_multiplayer" or ent:GetClass() == "npc_portal_turret_floor" or ent:GetClass() == "npc_security_camera" ) then
-			if ent:GetClass() == "npc_security_camera" then
-				ent:SetModel("models/props/Security_Camera_prop_reference.mdl")
-			end
-			local phys = ent:GetPhysicsObject()
-			ent:SetGroundEntity( NULL )
-			if phys:IsValid() then
-				phys:EnableMotion( true )
-				phys:Wake()
-				--print("WAKE UP "..ent:GetClass())
-			end
-		end
-	end
+	
 end
 
 function ENT:GetOpposite() --Don't think this is being used..? Gets the portal type that it would need to be linked too
@@ -185,19 +188,17 @@ function ENT:SuccessEffect()
 	ang:RotateAroundAxis(ang:Right(),-90)
 	ang:RotateAroundAxis(ang:Forward(),0)
 	ang:RotateAroundAxis(ang:Up(),90)
-
-	local ent = ents.Create( "info_particle_system" )
-	ent:SetPos(self:GetPos())
-	ent:SetAngles(ang)
-	if self.PortalType == TYPE_BLUE then
-		ent:SetKeyValue( "effect_name", "portal_1_success")
-	elseif self.PortalType == TYPE_ORANGE then
-		ent:SetKeyValue( "effect_name", "portal_2_success")
+	
+	local pos = self:GetPos()
+	if self:OnFloor() then
+		pos = pos-Vector(0,0,20)
 	end
-	ent:SetKeyValue( "start_active", "1")
-	ent:Spawn()
-	ent:Activate()
-	ent:SetParent(self)
+	
+	if self.PortalType == TYPE_BLUE then
+		ParticleEffect("portal_1_success",pos,ang,self)
+	else
+		ParticleEffect("portal_2_success",pos,ang,self)
+	end
 end
 
 
@@ -257,7 +258,7 @@ end
 
 --Mahalis code..
 function ENT:TransformOffset(v,a1,a2)
-	return (v:Dot(a1:Right()) * a2:Right() + v:Dot(a1:Up()) * a2:Up() + v:Dot(a1:Forward()) * a2:Forward())
+	return (v:Dot(a1:Right()) * a2:Right() + v:Dot(a1:Up()) * (-a2:Up()) + v:Dot(a1:Forward()) * a2:Forward())
 end
 
 function ENT:GetPortalAngleOffsets(portal,ent)
@@ -288,11 +289,22 @@ function ENT:GetPortalAngleOffsets(portal,ent)
 end
 
 function ENT:GetPortalPosOffsets(portal,ent)
-	local offset = self:WorldToLocal(ent:GetPos())
+	local pos
+	if ent:IsPlayer() then 
+		pos = ent:GetHeadPos() 
+	else 
+		pos = ent:GetPos()
+	end
+	local offset = self:WorldToLocal(pos)
 	offset.x = -offset.x;
 	offset.y = -offset.y;
 	
-	return portal:LocalToWorld( offset )
+	local output = portal:LocalToWorld( offset )
+	if ent:IsPlayer() then
+		return output + self:GetFloorOffset(output)
+	else
+		return output
+	end
 end
 
 function ENT:SyncClone(ent)
@@ -307,6 +319,16 @@ function ENT:SyncClone(ent)
 	clone:SetAngles(self:GetPortalAngleOffsets(portal,ent))
 end
 
+--Better touch prediction:
+function ENT:Think()
+	for k,v in pairs(player.GetAll()) do
+		if (not self:PlayerWithinBounds(v,false)) and self:PlayerWithinBounds(v,true) then
+			print("Going to be inside the portal next frame.")
+			self:PlayerEnterPortal(v)
+		end
+	end
+end
+
 function ENT:StartTouch(ent)
 	--if ent:IsPlayer() then return end
 	if ent:GetModel() == "models/blackops/portal_sides.mdl" then return end
@@ -317,7 +339,18 @@ function ENT:StartTouch(ent)
 	
 	
 	if self:CanPort(ent) and !ent:IsPlayer() then
-		
+		if ent:GetModel() != "models/blackops/portal_sides.mdl" and (ent:GetClass() == "prop_physics" or ent:GetClass() == "prop_physics_multiplayer" or ent:GetClass() == "npc_portal_turret_floor" or ent:GetClass() == "npc_security_camera" ) then
+			if ent:GetClass() == "npc_security_camera" then
+				ent:SetModel("models/props/Security_Camera_prop_reference.mdl")
+			end
+			local phys = ent:GetPhysicsObject()
+			ent:SetGroundEntity( NULL )
+			if phys:IsValid() then
+				phys:EnableMotion( true )
+				phys:Wake()
+				--print("WAKE UP "..ent:GetClass())
+			end
+		end
 		umsg.Start( "Portal:ObjectInPortal" )
 		umsg.Entity( self )
 		umsg.Entity( ent )
@@ -325,20 +358,17 @@ function ENT:StartTouch(ent)
 		ent.InPortal = self
 		constraint.AdvBallsocket( ent, game.GetWorld(), 0, 0, Vector(0,0,0), Vector(0,0,0), 0, 0,  -180, -180, -180, 180, 180, 180,  0, 0, 0, 1, 1 )
 		self:MakeClone(ent)
-	-- elseif ent:IsPlayer() then
-		-- ent:SetMoveType(MOVETYPE_NOCLIP)
-		-- --print("noclipping")
+	elseif ent:IsPlayer() then
 		
+		if not self:PlayerWithinBounds(ent) then return end
 		
-		-- if !ent.JustEntered then
-			-- ent:EmitSound("player/portal_enter".. self.PortalType ..".wav",80,100 + (30 * (ent:GetVelocity():Length() - 100)/1000))
-			-- ent.JustEntered = true
-		-- end
+		ent.JustEntered = true
+		self:PlayerEnterPortal(ent)
 	end
 end
 
 function ENT:Touch( ent )
-
+	if ent.InPortal != self then self:StartTouch(ent) end
 	--if ent:IsPlayer() then return end
 	if !self:CanPort(ent) then return end
 	
@@ -352,28 +382,7 @@ function ENT:Touch( ent )
 			-- if ent.JustPorted then ent.InPortal = self return end
 			--If the player isn't actually in the portal
 			if not ent.InPortal then
-				local plyPos = self:WorldToLocal(ent:GetPos())
-				local eyePos = self:WorldToLocal(ent:EyePos())
-				if self:IsHorizontal() then
-				--[[Check if the player is actually within the bounds of the portal.
-					Player's feet and head must be in the portal to enter.
-					portal dimensions: 64 wide, 104 tall]]
-					if plyPos.x > 20 then return end
-					if eyePos.z > 52 then return end
-					-- print("Head is in Z.")
-					if plyPos.z+ent:GetStepSize() < -52 then return end
-					-- print("Feet are in Z.")
-					if plyPos.y > 16 then return end
-					-- print("Left is in x")
-					if plyPos.y < -16 then return end
-					-- print("Right is in x")
-				else
-					print( plyPos.y)
-					if plyPos.z > 35 then return end
-					if plyPos.z < -35 then return end
-					if plyPos.y > 16 then return end
-					if plyPos.y < -16 then return end
-				end
+				if not self:PlayerWithinBounds(ent) then return end
 				ent.JustEntered = true
 				self:PlayerEnterPortal(ent)
 				
@@ -393,12 +402,52 @@ function ENT:Touch( ent )
 	end
 end
 
+function ENT:PlayerWithinBounds(ent,predicting)
+	local offset = Vector(0,0,0)
+	if predicting then offset = ent:GetVelocity()*FrameTime() end
+	local plyPos = self:WorldToLocal(ent:GetPos()+offset)
+	local headPos = self:WorldToLocal(ent:GetHeadPos()+offset)
+	local frontDist = math.min((ent:GetPos()+offset):PlaneDistance(self:GetPos(),self:GetForward()), (ent:GetHeadPos()+offset):PlaneDistance(self:GetPos(),self:GetForward()))
+	if frontDist > 22.29 then 
+		return false 
+	end
+	if self:IsHorizontal() then
+	--[[Check if the player is actually within the bounds of the portal.
+		Player's feet and head must be in the portal to enter.
+		portal dimensions: 64 wide, 104 tall]]
+		
+		//must be in the portal.
+		
+		
+		if headPos.z > 52 then return false end
+		-- print("Head is in Z.")
+		if plyPos.z+ent:GetStepSize() < -52 then return false end
+		-- print("Feet are in Z.")
+		if plyPos.y > 17 then return false end
+		-- print("Left is in x")
+		if plyPos.y < -17 then return false end
+		-- print("Right is in x")
+	else
+		//must be in the portal.
+		
+		if plyPos.z > 44 then return false end
+		if plyPos.z < -44 then return false end
+		if plyPos.y > 20 then return false end
+		if plyPos.y < -20 then return false end
+	end
+	return true
+end
+
 function ENT:PlayerEnterPortal(ent)
 	umsg.Start( "Portal:ObjectInPortal" )
 		umsg.Entity( self )
 		umsg.Entity( ent )
 	umsg.End()
 	ent.InPortal = self
+	
+	ent:GetPhysicsObject():EnableDrag(false)
+	
+	local vel = ent:GetVelocity()
 	ent:SetMoveType(MOVETYPE_NOCLIP)
 	-- print("noclipping")
 
@@ -409,7 +458,6 @@ function ENT:PlayerEnterPortal(ent)
 end
 
 function ENT:EndTouch(ent)
-
 	if ent.AlreadyPorted then
 		ent.AlreadyPorted = false
 	else
@@ -435,7 +483,7 @@ function ENT:DoPort(ent)
 	--Mahalis code
 	local vel = ent:GetVelocity()
 	if !vel then return end
-	vel = vel - 2*vel:Dot(self:GetAngles():Up())*self:GetAngles():Up()
+	-- vel = vel - 2*vel:Dot(self:GetAngles():Up())*self:GetAngles():Up()
 	local nuVel = self:TransformOffset(vel,self:GetAngles(),portal:GetAngles()) * -1
 	
 	local phys = ent:GetPhysicsObject()
@@ -454,8 +502,18 @@ function ENT:DoPort(ent)
 		local eyepos = ent:EyePos()
 		
 		if !IsBehind( eyepos, self:GetPos(), self:GetForward() ) then
-			ent:SetPos(self:GetPortalPosOffsets(portal,ent))
+			local newPos = self:GetPortalPosOffsets(portal,ent)
 			
+			ent:SetHeadPos(newPos)
+			
+			if (not self:OnFloor()) and (not portal:IsHorizontal()) and (not portal:OnRoof()) then --pop players out of floor portals.
+				if nuVel:Length() < 450 then
+					nuVel = portal:GetForward() * 450
+				end
+			end
+			
+			-- print("Old Velocity:", ent:GetVelocity())
+			-- print("New Velocity:", nuVel)
 			ent:SetLocalVelocity(nuVel)
 			
 			--local newang = math.VectorAngles(ent:GetForward(), ent:GetUp()) + Angle(0,180,0) + (portal:GetAngles() - self:GetAngles())
@@ -478,6 +536,12 @@ end
 local function BulletHook(ent,bullet)
 	if ent.FiredBullet then return end
 	--Test if the bullet hits the portal.
+	for k,inport in pairs(ents.FindByClass("prop_portal")) do --fix fake portal positions.
+		if inport:OnFloor() then
+			inport:SetPos(inport:GetPos()-Vector(0,0,20))
+		end
+	end
+	
 	for i=1, bullet.Num do
 		local tr = util.QuickTrace(bullet.Src, bullet.Dir*10000, ent)
 		
@@ -491,6 +555,11 @@ local function BulletHook(ent,bullet)
 			
 			--Create our new bullet and get the hit pos of the inportal.
 			local newbullet = table.Copy(bullet)
+			
+			if inport:OnFloor() and outport:OnFloor() then
+				outport:SetPos(outport:GetPos() + Vector(0,0,20))
+			end
+			
 			local offset = inport:WorldToLocal(tr.HitPos + bullet.Dir*20)
 			
 			offset.x = -offset.x;
@@ -499,14 +568,14 @@ local function BulletHook(ent,bullet)
 			--Correct bullet angles.
 			local ang = bullet.Dir
 			ang = inport:TransformOffset(ang,inport:GetAngles(),outport:GetAngles()) * -1
-			ang.z = -ang.z
+			-- ang.z = -ang.z --only works for horizontal items.
 			newbullet.Dir = ang
 			
 			--Transfer to new portal.
 			newbullet.Src = outport:LocalToWorld( offset ) + ang*10
 			
 			
-			--[[umsg.Start("DebugOverlay_LineTrace")
+			umsg.Start("DebugOverlay_LineTrace")
 				umsg.Vector(bullet.Src)
 				umsg.Vector(tr.HitPos)
 				umsg.Bool(true)
@@ -516,63 +585,26 @@ local function BulletHook(ent,bullet)
 				umsg.Vector(newbullet.Src)
 				umsg.Vector(p1.HitPos)
 				umsg.Bool(false)
-			umsg.End()]]
+			umsg.End()
 			
 			newbullet.Attacker = ent
 			outport.FiredBullet = true --prevent infinite loop.
 			outport:FireBullets(newbullet)		
 			outport.FiredBullet = false
+			
+			if inport:OnFloor() and outport:OnFloor() then
+				outport:SetPos(outport:GetPos() - Vector(0,0,20))
+			end
+			
+		end
+	end
+	for k,inport in pairs(ents.FindByClass("prop_portal")) do
+		if inport:OnFloor() then
+			inport:SetPos(inport:GetPos()+Vector(0,0,20))
 		end
 	end
 end
 hook.Add("EntityFireBullets", "BulletPorting", BulletHook)
-
-concommand.Add( "GoToOrigin", function(p,c,a)
-
-	local self = p:GetEyeTrace().Entity
-	if not IsValid(self) then return end
-	
-	local origin = p:EyePos()
-	local angles = p:EyeAngles()
-	
-	local normal = self:GetForward()
-	local distance = normal:Dot( self:GetPos() )
-
-	// quick access
-	local forward = angles:Forward()
-	local up = angles:Up()
-
-	// reflect origin
-	local dot = origin:DotProduct( normal ) - distance
-	origin = origin + ( -2 * dot ) * normal
-
-	// reflect forward
-	local dot = forward:DotProduct( normal )
-	forward = forward + ( -2 * dot ) * normal
-
-	// reflect up          
-	local dot = up:DotProduct( normal )
-	up = up + ( -2 * dot ) * normal
-
-	// convert to angles
-	angles = math.VectorAngles( forward, up )
-	
-	local LocalOrigin = self:WorldToLocal( origin )
-	local LocalAngles = self:WorldToLocalAngles( angles )
-   
-	// repair
-	LocalOrigin.y = -LocalOrigin.y
-	LocalAngles.y = -LocalAngles.y
-	LocalAngles.r = -LocalAngles.r
-	
-	LocalOrigin = self:GetNWEntity("Potal:Other"):LocalToWorld( LocalOrigin )
-	LocalAngles = self:GetNWEntity("Potal:Other"):LocalToWorldAngles( LocalAngles )
-	
-	p:SetMoveType(MOVETYPE_NOCLIP)
-	p:SetPos(LocalOrigin)
-	p:SetEyeAngles(LocalAngles)
-	
-end)
 
 function ENT:SetActivatedState(bool)
 	self.Activated = bool
@@ -661,6 +693,7 @@ end
 
 hook.Add("SetupPlayerVisibility", "Add portalPVS", function(ply,ve)
 	for k,self in pairs(ents.FindByClass("prop_portal"))do
+		if not IsValid(self) then continue end
 		local other = self:GetNWEntity("Potal:Other")
 		if (not other) or (not IsValid(other)) then continue end
 		local origin = ply:EyePos()

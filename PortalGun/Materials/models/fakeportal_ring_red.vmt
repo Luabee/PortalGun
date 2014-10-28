@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	"$basetexture"	"models/fakeportal_ring_red"
+	"$trancelucent"	"1"
+	"$model"		"1"
+	"$vertexalpha" 	"1"
+
+	"Proxies"
+	{
+		"AnimatedTexture"
+		{
+			"animatedtexturevar" "$basetexture"
+			"animatedtextureframenumvar" "$frame"
+			"animatedtextureframerate" 11
+		}
+	}
+}

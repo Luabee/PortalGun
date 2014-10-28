@@ -12,11 +12,6 @@ if ( SERVER ) then
         SWEP.AutoSwitchTo               = false
         SWEP.AutoSwitchFrom             = false
 		
-		resource.AddFile("models/weapons/portalgun/w_portalgun_hl2.mdl")
-		resource.AddFile("models/weapons/portalgun/v_portalgun.mdl")
-		resource.AddFile("models/blackops/portal.mdl")
-		resource.AddFile("models/blackops/portal_sides.mdl")
-		resource.AddFile("particles/particles_manifest.txt")
 end
 
 if ( CLIENT ) then
@@ -30,6 +25,9 @@ if ( CLIENT ) then
         SWEP.Slot = 0
         SWEP.Slotpos = 0
         SWEP.CSMuzzleFlashes    = true
+		
+		game.AddParticles("particles/wip_muzzle.pcf")
+		PrecacheParticleSystem("portalgun_muzzleflash_FP")
        
         -- function SWEP:DrawWorldModel()
                 -- if ( RENDERING_PORTAL or RENDERING_MIRROR or GetViewEntity() != LocalPlayer() ) then
@@ -39,6 +37,18 @@ if ( CLIENT ) then
 end
 
 SWEP.HoldType                   = "crossbow"
+
+SWEP.EnableIdle				= false	
+
+SWEP.BobScale = 0
+SWEP.SwayScale = 0
+
+BobTime = 0
+BobTimeLast = CurTime()
+
+SwayAng = nil
+SwayOldAng = Angle()
+SwayDelta = Angle()
 
 --Holy shit more hold types (^_^)  <- That face is fucking gay, why do I use it..
 
@@ -373,9 +383,7 @@ function SWEP:ShootPortal( type )
         if IsFirstTimePredicted() and owner:IsValid() then --Predict that motha' fucka'
        
                 if ( trace.Hit and trace.HitWorld ) then
-               
-                        weapon:EmitSound( self.ShootOrange, 100, 100 )
-                        weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
+
 						owner:DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY) --doesn't work?
                        
                         if SERVER then
@@ -459,14 +467,20 @@ end
 function SWEP:SecondaryAttack()
 
         self:ShootPortal( TYPE_ORANGE )
+		self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
+		self:EmitSound( self.ShootOrange, 100, 100 )
 		self.Owner:DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY)
+		self:IdleStuff()
 
 end
 
 function SWEP:PrimaryAttack()
        
         self:ShootPortal( TYPE_BLUE )
+		self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
+		self:EmitSound( self.ShootBlue, 100, 100 )
 		self.Owner:DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY)
+		self:IdleStuff()
 
 end
 
@@ -503,6 +517,7 @@ end
 function SWEP:Reload()
 
         self:CleanPortals()
+		self:IdleStuff()
         return
        
 end
@@ -510,6 +525,7 @@ end
 function SWEP:Deploy()
        
         self.Weapon:SendWeaponAnim( ACT_VM_DRAW )
+		self:IdleStuff()
         return true
        
 end
@@ -518,8 +534,24 @@ function SWEP:OnRestore()
 end
 
 function SWEP:Think()
+
+	if CLIENT and self.EnableIdle then return end
+	if self.idledelay and CurTime() > self.idledelay then
+		self.idledelay = nil
+		self:SendWeaponAnim(ACT_VM_IDLE)
+	end
+
+
 end
 
 function SWEP:DrawHUD()
 end
 
+/*---------------------------------------------------------
+   Name: IdleStuff
+   Desc: Helpers for the Idle function.
+---------------------------------------------------------*/
+function SWEP:IdleStuff()
+	if self.EnableIdle then return end
+	self.idledelay = CurTime() +self:SequenceDuration()
+end

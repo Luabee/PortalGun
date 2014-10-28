@@ -11,6 +11,8 @@ ENT.Instructions = "Spawn portals. Look through portals.";
 
 ENT.RenderGroup = RENDERGROUP_BOTH
 
+function ENT:UpdateTransmitState() return TRANSMIT_ALWAYS end
+
 ENT.Spawnable			= false
 ENT.AdminSpawnable		= false
 
@@ -44,9 +46,12 @@ function ENT:SetUpEffects(int)
 	ang:RotateAroundAxis(ang:Right(),-90)
 	ang:RotateAroundAxis(ang:Forward(),0)
 	ang:RotateAroundAxis(ang:Up(),90)
+	
+	local pos = self:GetPos()
+	if self:OnFloor() then pos.z = pos.z - 20 end
 
 	local ent = ents.Create( "info_particle_system" )
-	ent:SetPos(self:GetPos())
+	ent:SetPos(pos)
 	ent:SetAngles(ang)
 	if int == TYPE_BLUE then
 		ent:SetKeyValue( "effect_name", "portal_1_edge")
@@ -57,9 +62,10 @@ function ENT:SetUpEffects(int)
 	ent:Spawn()
 	ent:Activate()
 	ent:SetParent(self)
+	self.EdgeEffect = ent
 	
 	local ent = ents.Create( "info_particle_system" )
-	ent:SetPos(self:GetPos())
+	ent:SetPos(pos)
 	ent:SetAngles(ang)
 	if int == TYPE_BLUE then
 		ent:SetKeyValue( "effect_name", "portal_1_vacuum")
@@ -70,34 +76,56 @@ function ENT:SetUpEffects(int)
 	ent:Spawn()
 	ent:Activate()
 	ent:SetParent(self)
+	self.VacuumEffect = ent
 end
 
 
---checks if there is a floor in front of the portal or if a specific position is on top of a floor.
--- function ENT:FloorInFront(pos)
-	-- if not pos then
-		-- pos = self:GetPos() + self:GetForward()*40
-		-- for i=-10,10,1 do
-			-- local contents = util.PointContents(pos + self:GetUp()*(-56-i))
-			-- -- debugoverlay.Cross(pos + self:GetUp()*(-56-i),5,5,Color(0,255,0),true)
-			-- if contents == CONTENTS_SOLID then
-				-- -- print("Found a floor. "..contents)
-				-- return true
-			-- end
-		-- end
-	-- else
-		-- pos.z = pos.z-2
-		-- local contents = util.PointContents(pos)
-		-- if contents == CONTENTS_SOLID then
-			-- -- print("Found a floor. "..contents)
-			-- return true
-		-- end
-	-- end
+--Returns best point to offset the player to prevent stucks.
+function ENT:GetFloorOffset(pos1)
+	local offset = Vector(0,0,0)
+	local pos = Vector(0,0,0)
+	pos:Set(pos1) --stupid pointers...
 	
-	-- return false
-	-- -- print("No Floor Found. "..contents)
--- end
+	pos.z = pos.z-64
+	pos = self:WorldToLocal(pos)
+	pos.x = pos.x+30
+	for i=0,54 do
+		local openspace = util.IsInWorld(self:LocalToWorld(pos+Vector(0,0,i)))
+		if openspace then
+			-- print("Found no floor at -"..i)
+			-- umsg.Start("DebugOverlay_Cross")
+				-- umsg.Vector(self:LocalToWorld(pos+offset))
+				-- umsg.Bool(true)
+			-- umsg.End()
+			offset.z = i
+			break
+		else
+			-- print("Found a floor at -"..i)
+			-- umsg.Start("DebugOverlay_Cross")
+				-- umsg.Vector(self:LocalToWorld(pos+offset))
+				-- umsg.Bool(false)
+			-- umsg.End()
+		end
+	end
+	return offset
+end
 
 function ENT:IsHorizontal()
 	return self:GetAngles().p == 0
 end
+function ENT:OnFloor()
+	return self:GetAngles().p == 270 or self:GetAngles().p == -90
+end
+function ENT:OnRoof()
+	return self:GetAngles().p >= 90 and self:GetAngles().p <= 180
+end
+
+local function PlayerPickup( ply, ent )
+	if ent:GetClass() == "prop_portal" then
+		print("No Pickup.")
+		return false
+	end
+end
+-- hook.Add( "PhysgunPickup", "NoPickupPortals", PlayerPickup )
+hook.Add( "GravGunPickupAllowed", "NoPickupPortals", PlayerPickup )
+hook.Add( "GravGunPunt", "NoPickupPortals", PlayerPickup )

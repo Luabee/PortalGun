@@ -18,7 +18,7 @@ if( CLIENT ) then
 				local forward = 0;
 				local maxspeed = pl:GetMaxSpeed();
 				if pl:Crouching() then
-					maxspeed = pl:GetCrouchedWalkSpeed() * 100
+					maxspeed = pl:GetCrouchedWalkSpeed()
 				end
 			   
 				// forward/back
@@ -49,101 +49,136 @@ if( CLIENT ) then
 end
 
 function SubAxis( v, x )
-        return v - ( v:Dot( x ) * x )
+    return v - ( v:Dot( x ) * x )
 end
 
 function ipMove( ply, mv )
-
-        if IsValid( ply.InPortal ) and ply:GetMoveType() == MOVETYPE_NOCLIP then
+		local portal = ply.InPortal
+        if IsValid( portal ) and ply:GetMoveType() == MOVETYPE_NOCLIP then
                 -- if ply:GetMoveType() != MOVETYPE_NOCLIP then
 					-- return
                 -- end
 				//Glitchy fix.
-				if ply.InPortal:GetPos():Distance(ply:GetPos()) > 80 and ply.InPortal:IsLinked() and ply.InPortal:GetOther():GetPos():Distance(ply:GetPos()) > 80 then
-					ply.InPortal = nil
-					ply:SetMoveType(MOVETYPE_WALK)
-					return false
-				end
+				-- if portal:GetPos():Distance(ply:GetPos()) > 80 and portal:IsLinked() and portal:GetOther():GetPos():Distance(ply:GetPos()) > 80 then
+					-- print("booting player.")
+					-- ply.InPortal = nil
+					-- ply:SetMoveType(MOVETYPE_WALK)
+					-- ply:EmitSound("player/portal_exit".. portal.PortalType ..".wav",80,100 + (30 * (mv:GetVelocity():Length() - 100)/1000))
+					-- return false
+				-- end
 				
        
                 local deltaTime = FrameTime()
 				
-                // I hate having to get these by name like this.
                 local noclipSpeed = 1.75
                 local noclipAccelerate = 5
                
-                // calculate acceleration for this frame.
+                local pos = mv:GetOrigin()
+                local pOrg = portal:GetPos()
+                local pAng = portal:GetAngles()
+				
+				// calculate acceleration for this frame.
                 local ang = mv:GetMoveAngles()
-                local acceleration = ( ang:Forward() * mv:GetForwardSpeed() ) + ( ang:Right() * mv:GetSideSpeed() )
-               
-                local pos = mv:GetOrigin() + Vector( 0, 0, 38 )
-                local pOrg = ply.InPortal:GetPos()
-                local pAng = ply.InPortal:GetAngles()
-                local off = pos - pOrg
-                local vOff = SubAxis( SubAxis( off,pAng:Right() ), pAng:Forward() )
-				local pPos = ply.InPortal:WorldToLocal(ply:GetPos())
-               
-                -- if ply:GetPos().z > math.abs( ( ply.InPortal:GetUp() * -42 ).z ) then
-                if mv:GetOrigin().z > ply.InPortal:GetPos().z -42 then
-                       
-                        acceleration.z = -100
-                       
-                else
-               
-                        acceleration.z = 0
-                       
-                end
-               
+                local acceleration = ( ang:Forward() * mv:GetForwardSpeed() ) + ( ang:Right() * mv:GetSideSpeed() ) 
+				acceleration.z = 0
+				
                 // clamp to our max speed, and take into account noclip speed
                 local accelSpeed = math.min( acceleration:Length(), ply:GetMaxSpeed() );
                 local accelDir = acceleration:GetNormal()
                 acceleration = accelDir * accelSpeed * noclipSpeed
+				
+				//Gonna calculate these at some point.
+				-- local plyHeight = 72 --Player height
+				-- local bot, top = pOrg - pAng:Up()*55, pOrg + pAng:Up()*55 --bottom and top points of the portal
+				-- local portHeight = math.abs(top.z-bot.z) --isometric portal height
+				-- local gap = math.abs(portHeight-plyHeight) --max height difference
+				-- local minZ, maxZ = -(portHeight/2), -(portHeight/2) + gap
+				-- print(portHeight)
+				-- print(minZ,maxZ)
+				
+				local gravity = Vector(0,0,0)
+				local g = GetConVarNumber("sv_gravity")
+				if portal:IsHorizontal() then
+					if pos.z > pOrg.z-54 then
+						gravity.z = -g
+					end
+				else
+					gravity.z = -g
+				end
                
                 // calculate final velocity with friction
                 local getvel = mv:GetVelocity()
                 local newVelocity = getvel + acceleration * deltaTime * noclipAccelerate;
+				newVelocity = newVelocity + (gravity * deltaTime)
+				newVelocity.z = math.max(newVelocity.z, -3000) --Clamp that fall speed. 
+				newVelocity.z = newVelocity.z * .9999 --Correct incrementing zvelocity
                 newVelocity.x = newVelocity.x * ( 0.98 - deltaTime * 5 )
                 newVelocity.y = newVelocity.y * ( 0.98 - deltaTime * 5 )
 				
-				if pPos.x <= 16.5 or (not ply.InPortal:IsHorizontal())then
-					
-					if vOff:Length() > 20 then
-				   
-						off = SubAxis( off, pAng:Up() ) + vOff:GetNormal() *20
-					   
-					end
-				   
-					local hOff = SubAxis( SubAxis( off, pAng:Up() ), pAng:Forward() )
-				   
-					if hOff:Length() > 16 then
-					
-						off = SubAxis( off, pAng:Right() ) + hOff:GetNormal() * 16
-					   
-					end
-					
+				local localOrigin = portal:WorldToLocal( pos + newVelocity * deltaTime ) --Apply movement, localize before clamping.
+				local frontDist = math.min(pos:PlaneDistance(pOrg,pAng:Forward()), ply:GetHeadPos():PlaneDistance(pOrg,pAng:Forward()))
+				
+				local minY,maxY,minZ,maxZ
+				if portal:IsHorizontal() then
+					minY = -20
+					maxY = 20
+					minZ = -55
+					maxZ = -14
+				else
+					minY = -20
+					maxY = 20
+					minZ = -44
+					maxZ = 44
 				end
 				
+				if frontDist < 22.29 then
+					localOrigin.y = math.Clamp(localOrigin.y,minY,maxY)
+					localOrigin.z = math.Clamp(localOrigin.z,minZ,maxZ)
+				else
+					ply.InPortal = nil
+					ply:SetMoveType(MOVETYPE_WALK)
+					ply:EmitSound("player/portal_exit".. portal.PortalType ..".wav",80,100 + (30 * (newVelocity:Length() - 100)/1000))
+				end
+				
+				local newOrigin = portal:LocalToWorld(localOrigin)
 
                 // set velocity
-                mv:SetVelocity( newVelocity * .99 )
+                mv:SetVelocity( newVelocity )
                
-                // move the player
-                mv:SetOrigin( ( pOrg + off - Vector( 0, 0, 38 ) + newVelocity * deltaTime ) )
+			   //Move the player
+                mv:SetOrigin( newOrigin )
                
                 return true;
         end
 end
 hook.Add("Move","hpdMoveHook",ipMove)
 
-local function NoclipAnim(ply,vel)
-	print("Changed anim")
-	if IsValid( ply.InPortal ) then
-		ply:SetAnimation(PLAYER_WALK)
-		return true
-	end
-	return false
+local vec = FindMetaTable("Vector")
+function vec:PlaneDistance(plane,normal)
+	return normal:Dot(self-plane)
 end
-hook.Add("HandlePlayerDucking", "Portal: Pretend To Walk", NoclipAnim)
+
+timer.Simple(.1, function()
+	if GAMEMODE then
+		function GAMEMODE:HandlePlayerNoClipping(ply,vel)--, "Portal: Pretend To Walk", function(ply,vel)
+			-- print("Changed anim")
+			if IsValid( ply.InPortal ) then
+				ply:SetAnimation(PLAYER_WALK)
+			end
+			return false
+		end --)
+	elseif GM then
+		function GM:HandlePlayerNoClipping(ply,vel)--, "Portal: Pretend To Walk", function(ply,vel)
+			-- print("Changed anim")
+			if IsValid( ply.InPortal ) then
+				ply:SetAnimation(PLAYER_WALK)
+			end
+			return false
+		end --)
+	else
+		MsgN("Portal Gun: Couldn't change noclip animations.")
+	end
+end)
 
 
 local CanMoveThrough = {
