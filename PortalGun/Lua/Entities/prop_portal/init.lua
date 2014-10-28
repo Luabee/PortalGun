@@ -506,9 +506,17 @@ function ENT:DoPort(ent)
 			
 			ent:SetHeadPos(newPos)
 			
-			if (not self:OnFloor()) and (not portal:IsHorizontal()) and (not portal:OnRoof()) then --pop players out of floor portals.
+			if portal:OnFloor() and self:OnFloor() then --pop players out of floor portals.
 				if nuVel:Length() < 350 then
 					nuVel = portal:GetForward() * 350
+				end
+			elseif portal:OnFloor() then
+				if nuVel:Length() < 400 then
+					nuVel = portal:GetForward() * 400
+				end
+			elseif (not portal:IsHorizontal()) and (not portal:OnRoof()) then --pop harder for diagonals.
+				if nuVel:Length() < 450 then
+					nuVel = portal:GetForward() * 450
 				end
 			end
 			
