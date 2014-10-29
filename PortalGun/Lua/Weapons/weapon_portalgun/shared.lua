@@ -5,13 +5,14 @@ TYPE_ORANGE = 2
 
 PORTAL_HEIGHT = 110
 PORTAL_WIDTH = 68
-
+local ballSpeed, useNoBalls
 if ( SERVER ) then
         AddCSLuaFile( "shared.lua" )
         SWEP.Weight                     = 4
         SWEP.AutoSwitchTo               = false
         SWEP.AutoSwitchFrom             = false
-		
+		ballSpeed = CreateConVar("portal_projectile_speed", 3500, {FCVAR_NOTIFY,FCVAR_ARCHIVE,FCVAR_REPLICATED,FCVAR_SERVER_CAN_EXECUTE}, "The speed that portal projectiles travel.")
+		useNoBalls = CreateConVar("portal_instant", 0, {FCVAR_NOTIFY,FCVAR_ARCHIVE,FCVAR_REPLICATED,FCVAR_SERVER_CAN_EXECUTE}, "<0|1> Make portals create instantly and don't use the projectile.")
 end
 
 if ( CLIENT ) then
@@ -117,18 +118,20 @@ SWEP.ViewModelFlip              = false
 SWEP.Drawammo = false
 SWEP.DrawCrosshair = true
 
-SWEP.ShootOrange        = Sound( "Weapon_Portalgun.fire_red" )
-SWEP.ShootBlue          = Sound( "Weapon_Portalgun.fire_blue" )
-SWEP.Delay                      = 0.1
+SWEP.ShootOrange        = Sound( "weapons/portalgun/portalgun_shoot_red1.wav" )
+SWEP.ShootBlue        = Sound( "weapons/portalgun/portalgun_shoot_blue1.wav" )
+-- SWEP.ShootOrange        = Sound( "Weapon_Portalgun.fire_red" )
+-- SWEP.ShootBlue          = Sound( "Weapon_Portalgun.fire_blue" )
+SWEP.Delay                      = .5
 
 SWEP.Primary.ClipSize           = -1
 SWEP.Primary.DefaultClip        = -1
-SWEP.Primary.Automatic          = false
+SWEP.Primary.Automatic          = true
 SWEP.Primary.Ammo                       = "none"
 
 SWEP.Secondary.ClipSize         = -1
 SWEP.Secondary.DefaultClip      = -1
-SWEP.Secondary.Automatic        = false
+SWEP.Secondary.Automatic        = true
 SWEP.Secondary.Ammo                     = "none"
 
 SWEP.RunBob = 0.5
@@ -279,108 +282,33 @@ function SWEP:IsPosionValid( pos, normal, minwallhits, dosecondcheck )
 
 end
 
--- function SWEP:ImpactEffect( traceHit )
-	-- local data = EffectData();
-	-- data:SetOrigin(traceHit.HitPos)
-	-- data:SetNormal(traceHit.HitNormal)
-	-- data:SetScale(20)
-	-- util.Effect( "StunstickImpact", data );
-	-- local rand=math.random(1,1.5);
-	-- self:CreateBlast(rand,traceHit.HitPos)
-	-- self:CreateBlast(rand,traceHit.HitPos)											
-	-- if SERVER && traceHit.Entity && IsValid(traceHit.Entity) && string.find(traceHit.Entity:GetClass(),"ragdoll") then
-		-- traceHit.Entity:Fire("StartRagdollBoogie");
-		-- /*
-		-- local boog=ents.Create("env_ragdoll_boogie")
-		-- boog:SetPos(traceHit.Entity:GetPos())
-		-- boog:SetParent(traceHit.Entity)
-		-- boog:Spawn()
-		-- boog:SetParent(traceHit.Entity)
-		-- */
-	-- end
--- end
-
--- function SWEP:ShootEffect(EFFECTSTR,startpos,endpos)
-	-- local pPlayer=self.Owner;
-	-- if !pPlayer then return end
-	-- local view;
-	-- if CLIENT then view=GetViewEntity() else view=pPlayer:GetViewEntity() end
-		-- if ( !pPlayer:IsNPC() && view:IsPlayer() ) then
-			-- util.ParticleTracerEx( EFFECTSTR, self.Weapon:GetAttachment( self.Weapon:LookupAttachment( "muzzle" ) ).Pos,endpos, pPlayer:GetViewModel():EntIndex(),true,  pPlayer:GetViewModel():LookupAttachment( "muzzle" ) );
-		-- else
-			-- util.ParticleTracerEx( EFFECTSTR, pPlayer:GetAttachment( pPlayer:LookupAttachment( "anim_attachment_rh" ) ).Pos,endpos,pPlayer:EntIndex(), true, pPlayer:LookupAttachment( "anim_attachment_rh" ) );
-		-- end
--- end
-
--- function SWEP:DispatchEffect(EFFECTSTR)
-	-- local pPlayer=self.Owner;
-	-- if !pPlayer then return end
-	-- local view;
-	-- if CLIENT then view=GetViewEntity() else view=pPlayer:GetViewEntity() end
-		-- if ( !pPlayer:IsNPC() && view:IsPlayer() ) then
-			-- ParticleEffectAttach( EFFECTSTR, PATTACH_POINT_FOLLOW, pPlayer:GetViewModel(), pPlayer:GetViewModel():LookupAttachment( "muzzle" ) );
-		-- else
-			-- ParticleEffectAttach( EFFECTSTR, PATTACH_POINT_FOLLOW, pPlayer, pPlayer:LookupAttachment( "anim_attachment_rh" ) );
-		-- end
--- end
-
--- function SWEP:CreateBlast(scale,pos)
-	-- if CLIENT then return end
-	-- local blastspr = ents.Create("env_sprite");			//took me hours to understand how this damn
-	-- blastspr:SetPos( pos );								//entity works
-	-- blastspr:SetKeyValue( "model", "sprites/vortring1.vmt")//the damn vortigaunt beam ring
-	-- blastspr:SetKeyValue( "scale",tostring(scale))
-	-- blastspr:SetKeyValue( "framerate",60)
-	-- blastspr:SetKeyValue( "spawnflags","1")
-	-- blastspr:SetKeyValue( "brightness","255")
-	-- blastspr:SetKeyValue( "angles","0 0 0")
-	-- blastspr:SetKeyValue( "rendermode","9")
-	-- blastspr:SetKeyValue( "renderamt","255")
-	-- blastspr:Spawn()
-	-- blastspr:Fire("kill","",0.45)							//remove it after 0.45 seconds
--- end
-
-local function ParticleSystem(name,pos,ang,parent)
-	local ent = ents.Create( "info_particle_system" )
-	ent:SetPos(pos)
-	ent:SetAngles(ang)
-	ent:SetKeyValue( "effect_name", name)
-	ent:SetKeyValue( "start_active", "1")
-	ent:Spawn()
-	ent:Activate()
-	if parent then
-		ent:SetParent(parent)
-	end
-	return ent
-end
-
 function SWEP:ShootBall(type,startpos,endpos,dir)
-	-- PrecacheParticleSystem("portal_projectile_1_ball")
-	-- PrecacheParticleSystem("portal_projectile_2_ball")
-	-- local name = (type==TYPE_BLUE and "portal_projectile_1_ball" or "portal_projectile_2_ball")
-	-- local ball = ParticleSystem(name,startpos,dir:Angle())
+	if useNoBalls:GetBool() then return end
+	local ball = ents.Create("projectile_portal_ball")
+	local origin = startpos+dir*100 -Vector(0,0,10) +self.Owner:GetRight()*8
+	if CLIENT then
+		ball:SetPos(self:GetTracerOrigin())
+	else
+		ball:SetPos(origin)
+	end
+	ball:SetAngles(dir:Angle())
+	ball:SetEffects(type)
+	ball:SetGun(self)
+	ball:Spawn()
+	ball:Activate()
+	ball:SetOwner(self.Owner)
 	
-	-- local speed = 1
-	-- function ball:Think()
-		-- ball:SetPos(ball:GetPos()+dir*(speed*FrameTime()))
-	-- end
-	-- timer.Simple(5, ball.Remove)
+	local speed = ballSpeed:GetInt()
+	local phy = ball:GetPhysicsObject()
+	if phy:IsValid() then phy:ApplyForceCenter((endpos-origin):GetNormal() * speed) end
 	
+	return ball
 end
 
 function SWEP:ShootPortal( type )
-		
-		local Weapon = self.Weapon
-
-
 
         local weapon = self.Weapon
         local owner = self.Owner
-       
-        weapon:SetNextPrimaryFire( CurTime() + self.Delay )
-        weapon:SetNextSecondaryFire( CurTime() + self.Delay )
-		
-
        
         weapon:SetNextPrimaryFire( CurTime() + self.Delay )
         weapon:SetNextSecondaryFire( CurTime() + self.Delay )
@@ -412,7 +340,7 @@ function SWEP:ShootPortal( type )
         if IsFirstTimePredicted() and owner:IsValid() then --Predict that motha' fucka'
 				
 				//shoot a ball.
-				self:ShootBall(type,tr.start,tr.endpos,trace.Normal)
+				local ball = self:ShootBall(type,tr.start,tr.endpos,trace.Normal)
 				
                 if ( trace.Hit and trace.HitWorld ) then
 						
@@ -422,47 +350,60 @@ function SWEP:ShootPortal( type )
                                 local validpos, validnormang = self:IsPosionValid( trace.HitPos, trace.HitNormal, 2, true )
                                
                                 if !trace.HitNoDraw and !trace.HitSky and ( trace.MatType != MAT_METAL or ( trace.MatType == MAT_CONCRETE or trace.MatType == MAT_DIRT ) ) and validpos and validnormang then
-                                       
-                                        if !IsValid( EntToUse ) then
-                                       
-                                                local Portal = ents.Create( "prop_portal" )
-                                                Portal:SetPos( validpos )
-                                                Portal:SetAngles( validnormang )
-                                                Portal:Spawn()
-                                                Portal:Activate()
-                                                Portal:SetMoveType( MOVETYPE_NONE )
-                                                Portal:SetActivatedState(true)
-                                                Portal:SetType( type )
-                                                Portal:SuccessEffect()
-                                               
-                                                if type == TYPE_BLUE then
-                                               
-                                                        owner:SetNWEntity( "Portal:Blue", Portal )
-														Portal:SetNetworkedBool("blue",true,true)
-                                                       
-                                                else
-                                               
-                                                        owner:SetNWEntity( "Portal:Orange", Portal )
-														Portal:SetNetworkedBool("blue",false,true)
-                                                       
-                                                end
-                                               
-                                                EntToUse = Portal
-                                               
-                                                if IsValid( OtherEnt ) then
-                                               
-                                                        EntToUse:LinkPortals( OtherEnt )
-                                                       
-                                                end
-                                               
-                                        else
-                                       
-                                                EntToUse:MoveToNewPos( validpos, validnormang )
-                                                EntToUse:SuccessEffect()
-                                               
-                                        end
-										
-                                       
+                                      //Wait until our ball lands, if it's enabled.
+									  local hitDelay = .01
+									  if !useNoBalls:GetBool() then hitDelay = ((trace.Fraction * 2048 * 1000)-100)/ballSpeed:GetInt() end
+									  
+									  self:SetNextPrimaryFire(math.max(CurTime()+hitDelay+.2, CurTime() + self.Delay))
+									  self:SetNextSecondaryFire(math.max(CurTime()+hitDelay+.2, CurTime() + self.Delay))
+									  
+									  timer.Simple( hitDelay, function()
+											if ball and ball:IsValid() then ball:Remove() end
+											
+											local OrangePortalEnt = owner:GetNWEntity( "Portal:Orange", nil )
+											local BluePortalEnt = owner:GetNWEntity( "Portal:Blue", nil )
+										   
+											local EntToUse = type == TYPE_BLUE and BluePortalEnt or OrangePortalEnt
+											local OtherEnt = type == TYPE_BLUE and OrangePortalEnt or BluePortalEnt
+											if !IsValid( EntToUse ) then
+										   
+													local Portal = ents.Create( "prop_portal" )
+													Portal:SetPos( validpos )
+													Portal:SetAngles( validnormang )
+													Portal:Spawn()
+													Portal:Activate()
+													Portal:SetMoveType( MOVETYPE_NONE )
+													Portal:SetActivatedState(true)
+													Portal:SetType( type )
+													Portal:SuccessEffect()
+												   
+													if type == TYPE_BLUE then
+												   
+															owner:SetNWEntity( "Portal:Blue", Portal )
+															Portal:SetNetworkedBool("blue",true,true)
+														   
+													else
+												   
+															owner:SetNWEntity( "Portal:Orange", Portal )
+															Portal:SetNetworkedBool("blue",false,true)
+														   
+													end
+												   
+													EntToUse = Portal
+												   
+													if IsValid( OtherEnt ) then
+												   
+															EntToUse:LinkPortals( OtherEnt )
+														   
+													end
+												   
+											else
+										   
+													EntToUse:MoveToNewPos( validpos, validnormang )
+													EntToUse:SuccessEffect()
+												   
+											end
+										end )
                                 else
                                
                                         local ang = trace.HitNormal:Angle()
@@ -473,20 +414,19 @@ function SWEP:ShootPortal( type )
                                         local ent = ents.Create( "info_particle_system" )
                                         ent:SetPos( trace.HitPos + trace.HitNormal * 0.1 )
                                         ent:SetAngles( ang )
+										--TODO: Different fail effects.
                                         ent:SetKeyValue( "effect_name", "portal_" .. type .. "_badsurface")
                                         ent:SetKeyValue( "start_active", "1")
                                         ent:Spawn()
                                         ent:Activate()
-                                       
                                         timer.Simple( 5, function()
-                                       
-                                                if IsValid( ent ) then
-                                               
-                                                        ent:Remove()
-                                                       
-                                                end
-                                               
+											if IsValid( ent ) then
+												ent:Remove()
+											end 
                                         end )
+										
+										ent:EmitSound(Sound("weapons/portalgun/portal_invalid_surface3.wav"))
+										
                                        
                                 end
                                
@@ -499,11 +439,10 @@ function SWEP:ShootPortal( type )
 end
 
 function SWEP:SecondaryAttack()
-
         self:ShootPortal( TYPE_ORANGE )
 		self.Weapon:SetNetworkedInt("LastPortal",2)
 		self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
-		self:EmitSound( self.ShootOrange, 100, 100 )
+		self.Weapon:EmitSound( self.ShootOrange, 70, 100, .7, CHAN_WEAPON )
 		self.Owner:DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY)
 		self:IdleStuff()
 
@@ -514,7 +453,7 @@ function SWEP:PrimaryAttack()
         self:ShootPortal( TYPE_BLUE )
 		self.Weapon:SetNetworkedInt("LastPortal",1)
 		self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
-		self:EmitSound( self.ShootBlue, 100, 100 )
+		self.Weapon:EmitSound( self.ShootBlue, 70, 100, .7, CHAN_WEAPON )
 		self.Owner:DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY)
 		self:IdleStuff()
 
@@ -544,7 +483,7 @@ function SWEP:CleanPortals()
 
             self.Weapon:SendWeaponAnim( ACT_VM_FIZZLE )
 			self.Weapon:SetNetworkedInt("LastPortal",0)
-			self.Weapon:EmitSound( "portal_fizzle"..math.random(1,2)..".wav" )
+			self.Weapon:EmitSound( "weapons/portalgun/portal_fizzle"..math.random(1,2)..".wav", 45, 100, .5, CHAN_WEAPON )
         
 		end
        

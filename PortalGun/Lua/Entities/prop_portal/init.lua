@@ -7,6 +7,15 @@ ENT.PortalType = TYPE_BLUE
 ENT.Activated = false
 ENT.KeyValues = {}
 
+sound.Add({
+	name = "portal_loop", 
+	channel = CHAN_STATIC, 
+	volume = .8, 
+	level = 45, 
+	pitch = {95, 110}, 
+	sound = "weapons/portalgun/portal_ambient_loop1.wav"
+})
+
 local Plymeta = FindMetaTable("Player")
 function Plymeta:SetHeadPos(v)
 	v.z = v.z-64
@@ -82,7 +91,12 @@ function ENT:Initialize( )
 	end
 	
 	self:DeleteOnRemove(self.Sides)
+	
+	
+	self.portal_loop = CreateSound(self,"portal_loop")
+	self.portal_loop:Play()
 end
+
 
 function ENT:BootPlayer()
 	--Kick players out of this portal.
@@ -98,7 +112,7 @@ function ENT:BootPlayer()
 end
 
 function ENT:CleanMeUp()
-	
+	self.portal_loop:Stop("portal_loop")
 	self:BootPlayer()
 
 	local ang = self:GetAngles()
@@ -119,12 +133,13 @@ function ENT:CleanMeUp()
 	else
 		ParticleEffect("portal_2_close",pos,ang,nil)
 	end
-
-	timer.Simple(5,function()
-		if ent and ent:IsValid() then
-			ent:Remove()
-		end
-	end)
+	
+	self:EmitSound("weapons/portalgun/portal_close"..math.random(1,2)..".wav",150)
+	-- timer.Simple(5,function()
+		-- if ent and ent:IsValid() then
+			-- ent:Remove()
+		-- end
+	-- end)
 	self:Remove()
 end
 
@@ -194,11 +209,11 @@ function ENT:SuccessEffect()
 		pos = pos-Vector(0,0,20)
 	end
 	
-	if self.PortalType == TYPE_BLUE then
-		ParticleEffect("portal_1_success",pos,ang,self)
-	else
-		ParticleEffect("portal_2_success",pos,ang,self)
-	end
+	ParticleEffect("portal_"..self.PortalType.."_success",pos,ang,self)
+	local int = math.random(1,2)
+	if int==2 then int = 3 end
+	self:EmitSound("weapons/portalgun/portal_open"..int..".wav",100 )
+	
 end
 
 
@@ -333,6 +348,8 @@ end
 function ENT:StartTouch(ent)
 	--if ent:IsPlayer() then return end
 	if ent:GetModel() == "models/blackops/portal_sides.mdl" then return end
+	
+	if ent:GetClass() == "projectile_portal_ball" then ent:Remove() return end
 	
 	if self:GetNWBool("Potal:Linked",false) == false or self:GetNWBool("Potal:Activated",false) == false then return end
 	

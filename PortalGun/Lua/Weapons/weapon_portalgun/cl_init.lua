@@ -1,6 +1,6 @@
 include("shared.lua")
 
-local reticle = CreateClientConVar("portal_reticle","1",true,false)
+local reticle = CreateClientConVar("portal_crosshair","1",true,false)
 
 /*---------------------------------------------------------
    Name: CalcViewModelView
@@ -39,6 +39,12 @@ function SWEP:CalcViewModelView(ViewModel, oldPos, oldAng, pos, ang)
 	return oldPos + oldAng:Up() * SwayDelta.p + oldAng:Right() * SwayDelta.y + oldAng:Up() * oldAng.p / 90 * 2, oldAng
 end
 
+function SWEP:GetTracerOrigin()
+	local viewm = ply:GetViewModel()
+	local obj = viewm:LookupAttachment( "muzzle" )
+	return vm:GetAttachment( obj )
+end
+
 surface.CreateFont( "xhair", {
 	font = "HL2Cross", 
 	size = 40, 
@@ -57,9 +63,7 @@ surface.CreateFont( "xhair", {
 } )
 local cBlu = Color(80,144,255,255)
 local cOrg = Color(255,200,80,255)
-function Overlay()
-	if !LocalPlayer() || !LocalPlayer():Alive() || !LocalPlayer():GetActiveWeapon() || !(LocalPlayer():GetActiveWeapon():IsValid()) then return end
-	if LocalPlayer():GetActiveWeapon():GetClass() != "weapon_portalgun" then return end
+function SWEP:DrawHUD()
 	if !reticle:GetBool() then return end
 
 	local w = ScrW()
@@ -97,6 +101,3 @@ function Overlay()
 	draw.SimpleText(bBrack,"xhair",cX-25,cY,cBlu,2,1)
 	draw.SimpleText(rBrack,"xhair",cX+24,cY,cRit,0,1)
 end
-
-	
-hook.Add("HUDPaint","DoPortalOverlays",Overlay)

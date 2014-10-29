@@ -87,7 +87,7 @@ function ENT:Think()
 
         if self:GetNWBool("Potal:Activated",false) == false then return end
        
-        self.openpercent = math.Approach( self.openpercent, 1, FrameTime() * 5 * ( 1 - self.openpercent + 0.25 ) )
+        self.openpercent = math.Approach( self.openpercent, 1, FrameTime() * 3 * ( 1 - self.openpercent + 0.1 ) )
 
         if dlightenabled:GetBool() == false then return end
        
@@ -128,8 +128,10 @@ function ENT:Think()
 	   -- end
 end
 
-local nonlinkedblue = surface.GetTextureID( "sprites/noblue" )
-local nonlinkedorange = surface.GetTextureID( "sprites/nored" )
+local nonlinkedblue = surface.GetTextureID( "sprites/n0blue" )
+local nonlinkedorange = surface.GetTextureID( "sprites/n0red" )
+-- local nonlinkedblue = surface.GetTextureID( "sprites/noblue" )
+-- local nonlinkedorange = surface.GetTextureID( "sprites/nored" )
 local bluebordermat = surface.GetTextureID( "sprites/blborder" )
 local orangebordermat = surface.GetTextureID( "sprites/ogborder" )
 local bluebetabordermat = surface.GetTextureID( "sprites/blueborder" )
@@ -274,20 +276,31 @@ function ENT:DrawPortal()
 				
 				render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_EQUAL )
 				
+				--Draw portal.
 				local portaltype = self:GetNWInt( "Potal:PortalType",TYPE_BLUE )
 				if renderportals:GetBool() then
 					local ToRT = portaltype == TYPE_BLUE and texFSB or texFSB2
 					PortalMaterial:SetTexture( "$basetexture", ToRT )
 					render.SetMaterial( PortalMaterial )
-				else
-					local color = Material("sprites/blueNoDraw.png", "unlitgeneric")
-					if portaltype == TYPE_ORANGE then
-						color = Material("sprites/orangeNoDraw.png", "unlitgeneric")
-					end
-					render.SetMaterial(color)
+					render.DrawScreenQuad()
 				end
 				
-				render.DrawScreenQuad()
+				--Draw colored overlay.
+				local color = Material("sprites/blueNoDraw.png", "unlitgeneric")
+				if portaltype == TYPE_ORANGE then
+					color = Material("sprites/orangeNoDraw.png", "unlitgeneric")
+				end
+				local other = self:GetNWEntity("Potal:Other")
+				if other and other:IsValid() and other.openpercent then
+					if renderportals:GetBool() then
+						color:SetFloat("$alpha", 1-math.min(percentopen,other.openpercent))
+					else
+						color:SetFloat("$alpha", 1)
+					end
+					render.SetMaterial(color)
+					render.DrawScreenQuad()
+				end
+				
 			cam.End3D2D()
 		
 		render.SetStencilEnable( false )
@@ -532,7 +545,7 @@ end)
 hook.Add("Think", "Reset Camera Roll", function()
 	local a = LocalPlayer():EyeAngles()
 	if a.r != 0 then
-		a.r = math.Approach(a.r, 0, FrameTime()*180)
+		a.r = math.ApproachAngle(a.r, 0, FrameTime()*160)
 		LocalPlayer():SetEyeAngles(a)
 	end
 end) 

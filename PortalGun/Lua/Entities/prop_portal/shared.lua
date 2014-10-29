@@ -125,7 +125,7 @@ end
 
 local function PlayerPickup( ply, ent )	
 	if ent:GetClass() == "prop_portal" or ent:GetModel() == "models/blackops/portal_sides.mdl" then
-		print("No Pickup.")
+		-- print("No Pickup.")
 		return false
 	end
 end
