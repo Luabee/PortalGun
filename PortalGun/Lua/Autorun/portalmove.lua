@@ -14,12 +14,12 @@ if( CLIENT ) then
 		if( IsValid( pl ) ) then
    
 			if( pl.InPortal and pl.InPortal:IsValid() and pl:GetMoveType() == MOVETYPE_NOCLIP) then
-				
+				-- local localOrigin = pl.InPortal:WorldToLocal(pl:GetPos())
 				local right = 0;
 				local forward = 0;
 				local maxspeed = pl:GetMaxSpeed();
 				if pl:Crouching() then
-					maxspeed = pl:GetCrouchedWalkSpeed()
+					maxspeed = pl:GetCrouchedWalkSpeed()*180
 				end
 			   
 				// forward/back
@@ -36,6 +36,17 @@ if( CLIENT ) then
 				end
 				if( cmd:KeyDown( IN_MOVELEFT ) ) then
 					right = right - maxspeed;
+				end
+				
+				if cmd:KeyDown(IN_JUMP) then
+					if pl.m_bSpacebarReleased and pl.InPortal:IsHorizontal() then
+						pl.m_bSpacebarReleased = false
+						if pl.InPortal:WorldToLocal( pl:GetPos() ).z <= -54 then
+							GAMEMODE:DoAnimationEvent(LocalPlayer(),PLAYERANIMEVENT_JUMP)
+						end
+					end
+				else
+					pl.m_bSpacebarReleased = true
 				end
 				
 				cmd:SetForwardMove( forward );
@@ -82,15 +93,18 @@ function ipMove( ply, mv )
 				
 				// calculate acceleration for this frame.
                 local ang = mv:GetMoveAngles()
-                local acceleration = ( ang:Forward() * mv:GetForwardSpeed() ) + ( ang:Right() * mv:GetSideSpeed() ) 
-				acceleration.z = 0
+                local acceleration = ( ang:Right() * mv:GetSideSpeed() ) 
+				local forward = (ang + Angle(0,90,0)):Right()
+				acceleration = acceleration + forward*mv:GetForwardSpeed()
+				
+				-- acceleration.z = 0
 				
                 // clamp to our max speed, and take into account noclip speed
                 local accelSpeed = math.min( acceleration:Length(), ply:GetMaxSpeed() );
                 local accelDir = acceleration:GetNormal()
                 acceleration = accelDir * accelSpeed * noclipSpeed
 				
-				//Gonna calculate these at some point.
+				//TODO: Gonna calculate these at some point.
 				-- local plyHeight = 72 --Player height
 				-- local bot, top = pOrg - pAng:Up()*55, pOrg + pAng:Up()*55 --bottom and top points of the portal
 				-- local portHeight = math.abs(top.z-bot.z) --isometric portal height
@@ -108,6 +122,7 @@ function ipMove( ply, mv )
 				else
 					gravity.z = -g
 				end
+				
                
                 // calculate final velocity with friction
                 local getvel = mv:GetVelocity()
@@ -117,6 +132,18 @@ function ipMove( ply, mv )
 				newVelocity.z = newVelocity.z * .9999 --Correct incrementing zvelocity
                 newVelocity.x = newVelocity.x * ( 0.98 - deltaTime * 5 )
                 newVelocity.y = newVelocity.y * ( 0.98 - deltaTime * 5 )
+				
+				if mv:KeyDown(IN_JUMP) then
+					if ply.m_bSpacebarReleased and portal:IsHorizontal() then
+						ply.m_bSpacebarReleased = false
+						if portal:WorldToLocal( pos ).z <= -54 then
+							newVelocity.z = ply:GetJumpPower()
+							GAMEMODE:DoAnimationEvent(ply,PLAYERANIMEVENT_JUMP)
+						end
+					end
+				else
+					ply.m_bSpacebarReleased = true
+				end
 				
 				local frontDist
 				if portal:IsHorizontal() then --Fix diagonal portal with OBB detection.
@@ -143,7 +170,8 @@ function ipMove( ply, mv )
 				
 				-- print(frontDist)
 				
-				if frontDist < 25.29 then
+				if frontDist < 16 then
+				-- if frontDist < 25.29 then
 					localOrigin.z = math.Clamp(localOrigin.z,minZ,maxZ)
 					localOrigin.y = math.Clamp(localOrigin.y,minY,maxY)
 				elseif frontDist < 16 then
@@ -172,27 +200,6 @@ function vec:PlaneDistance(plane,normal)
 	return normal:Dot(self-plane)
 end
 
-timer.Simple(.1, function()
-	if GAMEMODE then
-		function GAMEMODE:HandlePlayerNoClipping(ply,vel)--, "Portal: Pretend To Walk", function(ply,vel)
-			-- print("Changed anim")
-			if IsValid( ply.InPortal ) then
-				ply:SetAnimation(PLAYER_WALK)
-			end
-			return false
-		end --)
-	elseif GM then
-		function GM:HandlePlayerNoClipping(ply,vel)--, "Portal: Pretend To Walk", function(ply,vel)
-			-- print("Changed anim")
-			if IsValid( ply.InPortal ) then
-				ply:SetAnimation(PLAYER_WALK)
-			end
-			return false
-		end --)
-	else
-		MsgN("Portal Gun: Couldn't change noclip animations.")
-	end
-end)
 
 function math.YawBetweenPoints(a,b)
 	local xDiff = a.x - b.x; 

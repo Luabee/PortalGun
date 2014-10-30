@@ -336,13 +336,13 @@ end
 
 --Better touch prediction:
 function ENT:Think()
-	-- if self:GetNWBool("Potal:Activated",false) and self:GetNWBool("Potal:Linked",false) then
-		-- for k,v in pairs(player.GetAll()) do
-			-- if (not self:PlayerWithinBounds(v,false)) and self:PlayerWithinBounds(v,true) then
-				-- self:PlayerEnterPortal(v)
-			-- end
-		-- end
-	-- end
+	if self:GetNWBool("Potal:Activated",false) and self:GetNWBool("Potal:Linked",false) then
+		for k,v in pairs(player.GetAll()) do
+			if (not self:PlayerWithinBounds(v,false)) and self:PlayerWithinBounds(v,true) then
+				self:PlayerEnterPortal(v)
+			end
+		end
+	end
 end
 
 function ENT:StartTouch(ent)
@@ -457,7 +457,7 @@ function ENT:PlayerWithinBounds(ent,predicting)
 		
 		if headPos.z > 52 then return false end
 		-- print("Head is in Z.")
-		if plyPos.z+ent:GetStepSize() < -52 then return false end
+		if (ent:OnGround() and plyPos.z+ent:GetStepSize() or plyPos.z) < -52 then return false end
 		-- print("Feet are in Z.")
 		if plyPos.y > 17 then return false end
 		-- print("Left is in x")
