@@ -4,7 +4,7 @@ if( SERVER ) then
 end
 
 local plymeta = FindMetaTable("Player")
-function plymeta:PortalGroundCheck(b)
+function plymeta:PortalGroundCheck()
 	if self:OnGround() and (not IsValid(self.InPortal)) then return true end
 	if IsValid(self.InPortal) and self.InPortal:IsHorizontal() then
 		local z = self.InPortal:WorldToLocal( self:GetPos() ).z

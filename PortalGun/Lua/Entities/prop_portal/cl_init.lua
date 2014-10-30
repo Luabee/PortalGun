@@ -374,18 +374,16 @@ function ENT:RenderPortal( origin, angles)
 			render.SetRenderTarget( ToRT )
 				render.PushCustomClipPlane( othernormal, otherdistance )
 				local b = render.EnableClipping(true)
-					-- render.Clear( 0, 0, 0, 255 )
-					-- render.ClearDepth()
-					-- render.ClearStencil()
+					render.Clear( 0, 0, 0, 255 )
+					render.ClearDepth()
+					render.ClearStencil()
 					
-					-- render.SetLightingMode(1)
 					portal:SetNoDraw( true )
-						RENDERING_PORTAL = true
+						RENDERING_PORTAL = self
 							render.RenderView( view )
 							render.UpdateScreenEffectTexture()
 						RENDERING_PORTAL = false
 					portal:SetNoDraw( false )
-					-- render.SetLightingMode(0)
 					
 				render.PopCustomClipPlane()
 				render.EnableClipping(b)
