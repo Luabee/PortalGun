@@ -1,5 +1,6 @@
+
 if( SERVER ) then
-        AddCSLuaFile( "portalmove.lua" );
+    AddCSLuaFile( "portalmove.lua" );
 end
 
 if( CLIENT ) then
@@ -67,7 +68,6 @@ function ipMove( ply, mv )
 					-- return false
 				-- end
 				
-       
                 local deltaTime = FrameTime()
 				
                 local noclipSpeed = 1.75
@@ -118,8 +118,15 @@ function ipMove( ply, mv )
                 newVelocity.x = newVelocity.x * ( 0.98 - deltaTime * 5 )
                 newVelocity.y = newVelocity.y * ( 0.98 - deltaTime * 5 )
 				
+				local frontDist
+				if portal:IsHorizontal() then --Fix diagonal portal with OBB detection.
+					local OBBPos = util.ClosestPointInOBB(pOrg,ply:OBBMins(),ply:OBBMaxs(),ply:GetPos(),false)
+					frontDist = OBBPos:PlaneDistance(pOrg,pAng:Forward())
+				else
+					frontDist = math.min(pos:PlaneDistance(pOrg,pAng:Forward()), ply:GetHeadPos():PlaneDistance(pOrg,pAng:Forward()))
+				end
+				
 				local localOrigin = portal:WorldToLocal( pos + newVelocity * deltaTime ) --Apply movement, localize before clamping.
-				local frontDist = math.min(pos:PlaneDistance(pOrg,pAng:Forward()), ply:GetHeadPos():PlaneDistance(pOrg,pAng:Forward()))
 				
 				local minY,maxY,minZ,maxZ
 				if portal:IsHorizontal() then
@@ -134,13 +141,17 @@ function ipMove( ply, mv )
 					maxZ = 44
 				end
 				
-				if frontDist < 22.29 then
-					localOrigin.y = math.Clamp(localOrigin.y,minY,maxY)
+				-- print(frontDist)
+				
+				if frontDist < 25.29 then
 					localOrigin.z = math.Clamp(localOrigin.z,minZ,maxZ)
+					localOrigin.y = math.Clamp(localOrigin.y,minY,maxY)
+				elseif frontDist < 16 then
+					localOrigin.y = math.Clamp(localOrigin.y,minY,maxY)
 				else
 					ply.InPortal = nil
 					ply:SetMoveType(MOVETYPE_WALK)
-					ply:EmitSound("player/portal_exit".. portal.PortalType ..".wav",80,100 + (30 * (newVelocity:Length() - 100)/1000))
+					-- ply:EmitSound("player/portal_exit".. portal.PortalType ..".wav",80,100 + (30 * (newVelocity:Length() - 100)/1000))
 				end
 				
 				local newOrigin = portal:LocalToWorld(localOrigin)
@@ -182,6 +193,68 @@ timer.Simple(.1, function()
 		MsgN("Portal Gun: Couldn't change noclip animations.")
 	end
 end)
+
+function math.YawBetweenPoints(a,b)
+	local xDiff = a.x - b.x; 
+	local yDiff = a.y - b.y; 
+	return math.atan2(yDiff, xDiff) * (180 / math.pi) 
+end
+
+// Returns the distance between a point and an OBB, defined by mins and maxs.
+// If a center is given, it will return a distance within the OBB if the point is within the OBB.
+//	Works in 2 dimensions. Ignores Z of target and center.
+// Also only works with player OBB's so far. Derp.
+function util.ClosestPointInOBB(point,mins,maxs,center,Debug)
+	-- local yaw = ply:GetRight():Angle().y+90
+	local Debug = Debug or false
+	local yaw = math.rad(math.YawBetweenPoints(point,center))
+	local radius
+	local abs_cos_angle= math.abs(math.cos(yaw));
+	local abs_sin_angle= math.abs(math.sin(yaw));
+	if (16*abs_sin_angle <= 16*abs_cos_angle) then
+		radius= 16/abs_cos_angle;
+	else
+		radius= 16/abs_sin_angle;
+	end
+	
+	radius = math.min(radius,math.Distance(center.x,center.y,point.x,point.y))
+	local x,y = math.cos(yaw)*radius, math.sin(yaw)*radius
+	
+	if Debug then
+		if not CLIENT then
+			umsg.Start("drawOBB")
+				umsg.Vector(point)
+				umsg.Vector(mins)
+				umsg.Vector(maxs)
+				umsg.Vector(center)
+			umsg.End()
+		else
+			debugoverlay.Box(center,mins,maxs,FrameTime()+.01,Color(200,30,30,0))
+			debugoverlay.Line(center+Vector(0,0,0),center+Vector(x,y,0),FrameTime()+.01,Color(200,30,30,255))
+			debugoverlay.Cross(center+Vector(x,y,0),2,1,Color(300,200,30,255))
+			debugoverlay.Cross(point,5,1,Color(30,200,30,255))
+		end
+	end
+	
+	
+	return Vector(x,y,0) + center
+	
+end
+
+if CLIENT then
+	usermessage.Hook("drawOBB", function(umsg)
+		local point, mins, maxs, center = umsg:ReadVector(),umsg:ReadVector(),umsg:ReadVector(),umsg:ReadVector()
+		util.ClosestPointInOBB(point,mins,maxs,center,true)
+	end)
+end
+
+-- hook.Add("Think", "OBBTest", function(ply)
+	-- for k,ply in pairs(player.GetAll())do
+		-- if CLIENT then
+			-- util.ClosestPointInOBB(Vector(0,0,0),ply:OBBMins(),ply:OBBMaxs(),ply:GetPos(),true)
+		-- end
+	-- end
+-- end)
 
 
 local CanMoveThrough = {

@@ -25,7 +25,7 @@ if ( CLIENT ) then
         SWEP.Instructions       = ""
         SWEP.Slot = 0
         SWEP.Slotpos = 0
-        SWEP.CSMuzzleFlashes    = true
+        SWEP.CSMuzzleFlashes    = false
 		
 		game.AddParticles("particles/wip_muzzle.pcf")
 		PrecacheParticleSystem("portalgun_muzzleflash_FP")
@@ -139,13 +139,6 @@ SWEP.RunSway = 2.0
 
 SWEP.HasOrangePortal = false
 SWEP.HasBluePortal = false
-
-function SWEP:Initialize()
-
-		self.Weapon:SetNetworkedInt("LastPortal",0,true)
-        self:SetWeaponHoldType( self.HoldType )
-       
-end
 
 function SWEP:GetViewModelPosition( pos, ang )
 
@@ -286,11 +279,8 @@ function SWEP:ShootBall(type,startpos,endpos,dir)
 	if useNoBalls:GetBool() then return end
 	local ball = ents.Create("projectile_portal_ball")
 	local origin = startpos+dir*100 -Vector(0,0,10) +self.Owner:GetRight()*8
-	if CLIENT then
-		ball:SetPos(self:GetTracerOrigin())
-	else
-		ball:SetPos(origin)
-	end
+	
+	ball:SetPos(origin)
 	ball:SetAngles(dir:Angle())
 	ball:SetEffects(type)
 	ball:SetGun(self)
@@ -443,7 +433,7 @@ function SWEP:SecondaryAttack()
 		self.Weapon:SetNetworkedInt("LastPortal",2)
 		self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
 		self.Weapon:EmitSound( self.ShootOrange, 70, 100, .7, CHAN_WEAPON )
-		self.Owner:DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY)
+		self.Owner:SetAnimation(PLAYER_ATTACK1)
 		self:IdleStuff()
 
 end
@@ -454,7 +444,7 @@ function SWEP:PrimaryAttack()
 		self.Weapon:SetNetworkedInt("LastPortal",1)
 		self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
 		self.Weapon:EmitSound( self.ShootBlue, 70, 100, .7, CHAN_WEAPON )
-		self.Owner:DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY)
+		self.Owner:SetAnimation(PLAYER_ATTACK1)
 		self:IdleStuff()
 
 end

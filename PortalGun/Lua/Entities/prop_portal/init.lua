@@ -265,8 +265,8 @@ function ENT:MakeClone(ent)
 	ent.clone = clone
 	
 	umsg.Start("Portal:ObjectInPortal" )
-	umsg.Entity( portal )
-	umsg.Entity( clone )
+		umsg.Entity( portal )
+		umsg.Entity( clone )
 	umsg.End()
 	clone.InPortal = portal
 end
@@ -336,13 +336,13 @@ end
 
 --Better touch prediction:
 function ENT:Think()
-	if self:GetNWBool("Potal:Activated",false) and self:GetNWBool("Potal:Linked",false) then
-		for k,v in pairs(player.GetAll()) do
-			if (not self:PlayerWithinBounds(v,false)) and self:PlayerWithinBounds(v,true) then
-				self:PlayerEnterPortal(v)
-			end
-		end
-	end
+	-- if self:GetNWBool("Potal:Activated",false) and self:GetNWBool("Potal:Linked",false) then
+		-- for k,v in pairs(player.GetAll()) do
+			-- if (not self:PlayerWithinBounds(v,false)) and self:PlayerWithinBounds(v,true) then
+				-- self:PlayerEnterPortal(v)
+			-- end
+		-- end
+	-- end
 end
 
 function ENT:StartTouch(ent)
@@ -424,19 +424,27 @@ function ENT:PlayerWithinBounds(ent,predicting)
 	local offset = Vector(0,0,0)
 	if predicting then offset = ent:GetVelocity()*FrameTime() end
 	
+	local pOrg = self:GetPos()
 	if self:OnFloor() then
-		self:SetPos(self:GetPos() - Vector(0,0,20))
+		self:SetPos(pOrg - Vector(0,0,20))
+		pOrg = pOrg - Vector(0,0,20)
 	end
 	
 	local plyPos = self:WorldToLocal(ent:GetPos()+offset)
 	local headPos = self:WorldToLocal(ent:GetHeadPos()+offset)
-	local frontDist = math.min((ent:GetPos()+offset):PlaneDistance(self:GetPos(),self:GetForward()), (ent:GetHeadPos()+offset):PlaneDistance(self:GetPos(),self:GetForward()))
-	
-	if self:OnFloor() then
-		self:SetPos(self:GetPos() + Vector(0,0,20))
+	local frontDist
+	if self:IsHorizontal() then
+		local OBBPos = util.ClosestPointInOBB(pOrg,ent:OBBMins(),ent:OBBMaxs(),ent:GetPos()+offset,false)
+		frontDist = OBBPos:PlaneDistance(pOrg,self:GetForward())
+	else
+		frontDist = math.min((ent:GetPos()+offset):PlaneDistance(self:GetPos(),self:GetForward()), (ent:GetHeadPos()+offset):PlaneDistance(self:GetPos(),self:GetForward()))
 	end
 	
-	if frontDist > 22.29 then 
+	if self:OnFloor() then
+		self:SetPos(pOrg + Vector(0,0,20))
+	end
+	
+	if frontDist > 17 then 
 		return false 
 	end
 	if self:IsHorizontal() then
@@ -535,12 +543,12 @@ function ENT:DoPort(ent)
 			ent:SetHeadPos(newPos)
 			
 			if portal:OnFloor() and self:OnFloor() then --pop players out of floor portals.
-				if nuVel:Length() < 350 then
-					nuVel = portal:GetForward() * 350
+				if nuVel:Length() < 340 then
+					nuVel = portal:GetForward() * 340
 				end
 			elseif portal:OnFloor() then
-				if nuVel:Length() < 400 then
-					nuVel = portal:GetForward() * 400
+				if nuVel:Length() < 350 then
+					nuVel = portal:GetForward() * 350
 				end
 			elseif (not portal:IsHorizontal()) and (not portal:OnRoof()) then --pop harder for diagonals.
 				if nuVel:Length() < 450 then
@@ -604,7 +612,6 @@ local function BulletHook(ent,bullet)
 			--Correct bullet angles.
 			local ang = bullet.Dir
 			ang = inport:TransformOffset(ang,inport:GetAngles(),outport:GetAngles()) * -1
-			-- ang.z = -ang.z --only works for horizontal items.
 			newbullet.Dir = ang
 			
 			--Transfer to new portal.
@@ -770,4 +777,12 @@ hook.Add("SetupPlayerVisibility", "Add portalPVS", function(ply,ve)
 		
 		AddOriginToPVS(self:GetPos())
 	end
+end)
+
+concommand.Add("CreateParticles", function(p,c,a)
+	local name = a[1]
+	local ang = p:GetAngles()
+	ang:RotateAroundAxis(p:GetRight(),90)
+	ang:RotateAroundAxis(p:GetForward(),90)
+	ParticleEffect(name,p:EyePos()+p:GetForward()*100,ang, (a[2] == 1 and self or nil))
 end)

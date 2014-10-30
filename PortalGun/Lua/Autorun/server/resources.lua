@@ -48,6 +48,12 @@ resource.AddFile("materials/models/weapons/w_models/portalgun/w_portalgun_potato
 
 resource.AddFile("materials/vgui/entities/weapon_portalgun.vmt")
 
+resource.AddFile("materials/vgui/portalgun/lastFired.png")
+resource.AddFile("materials/vgui/portalgun/leftEmpty.png")
+resource.AddFile("materials/vgui/portalgun/leftFull.png")
+resource.AddFile("materials/vgui/portalgun/rightEmpty.png")
+resource.AddFile("materials/vgui/portalgun/rightFull.png")
+
 resource.AddFile("materials/weapons/portalgun_inventory.vmt")
 
 resource.AddFile("scripts/game_sounds_player_portal.txt")

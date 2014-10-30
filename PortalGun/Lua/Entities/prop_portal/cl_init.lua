@@ -1,10 +1,10 @@
 include( "shared.lua" )
 
-local dlightenabled = CreateClientConVar("portal_dynamic_light", "0", true) --Kinda laggy, default it to off
+local dlightenabled = CreateClientConVar("portal_dynamic_light", "0", true) --Pretty laggy, default it to off
 -- local lightteleport = CreateClientConVar("portal_light_teleport", "0", true)
 local bordersenabled = CreateClientConVar("portal_borders", "1", true)
 local betabordersenabled = CreateClientConVar("portal_beta_borders", "1", true)
-local renderportals = CreateClientConVar("portal_render", 1, true)
+local renderportals = CreateClientConVar("portal_render", 1, true) --Some people can't handle portals at all.
 
 local texFSB = render.GetSuperFPTex() -- I'm really not sure if I should even be using these D:
 local texFSB2 = render.GetSuperFPTex2()
