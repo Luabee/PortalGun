@@ -1,6 +1,10 @@
 
 AddCSLuaFile("shared.lua")
 
+if CLIENT then
+	game.AddParticles("particles/cleansers.pcf")
+end
+
 ENT.Type = "anim"
 ENT.Base = "base_anim"
 ENT.PrintName = "Portal Ball"
@@ -27,6 +31,8 @@ function ENT:Initialize()
 	end
 	self.Entity:SetCollisionGroup(COLLISION_GROUP_WORLD)
 	self.Entity:DrawShadow(false)
+	self:SetNoDraw(false)
+	timer.Simple(.01,function() if self:IsValid() then self:SetNoDraw(true) end end)
 	
 end
 

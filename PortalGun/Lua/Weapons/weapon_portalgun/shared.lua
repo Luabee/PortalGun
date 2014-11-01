@@ -15,7 +15,7 @@ if ( SERVER ) then
         SWEP.AutoSwitchTo               = false
         SWEP.AutoSwitchFrom             = false
 		ballSpeed = CreateConVar("portal_projectile_speed", 3500, {FCVAR_NOTIFY,FCVAR_ARCHIVE,FCVAR_REPLICATED,FCVAR_SERVER_CAN_EXECUTE}, "The speed that portal projectiles travel.")
-		useNoBalls = CreateConVar("portal_instant", 0, {FCVAR_NOTIFY,FCVAR_ARCHIVE,FCVAR_REPLICATED,FCVAR_SERVER_CAN_EXECUTE}, "<0|1> Make portals create instantly and don't use the projectile.")
+		--useNoBalls = CreateConVar("portal_instant", 0, {FCVAR_NOTIFY,FCVAR_ARCHIVE,FCVAR_REPLICATED,FCVAR_SERVER_CAN_EXECUTE}, "<0|1> Make portals create instantly and don't use the projectile.")
 end
 
 if ( CLIENT ) then
@@ -466,9 +466,8 @@ function SWEP:IsPosionValid( pos, normal, minwallhits, dosecondcheck )
 end
 
 function SWEP:ShootBall(type,startpos,endpos,dir)
-	if useNoBalls:GetBool() then return end
 	local ball = ents.Create("projectile_portal_ball")
-	local origin = startpos+dir*100 -Vector(0,0,10) +self.Owner:GetRight()*8
+	local origin = startpos -Vector(0,0,10) +self.Owner:GetRight()*8 -- +dir*100
 	
 	ball:SetPos(origin)
 	ball:SetAngles(dir:Angle())
@@ -531,57 +530,58 @@ function SWEP:ShootPortal( type )
                                
                                 if !trace.HitNoDraw and !trace.HitSky and ( trace.MatType != MAT_METAL or ( trace.MatType == MAT_CONCRETE or trace.MatType == MAT_DIRT ) ) and validpos and validnormang then
                                       //Wait until our ball lands, if it's enabled.
-									  local hitDelay = .01
-									  if !useNoBalls:GetBool() then hitDelay = ((trace.Fraction * 2048 * 1000)-100)/ballSpeed:GetInt() end
+									  hitDelay = ((trace.Fraction * 2048 * 1000)-100)/ballSpeed:GetInt()
 									  
 									  self:SetNextPrimaryFire(math.max(CurTime()+hitDelay+.2, CurTime() + self.Delay))
 									  self:SetNextSecondaryFire(math.max(CurTime()+hitDelay+.2, CurTime() + self.Delay))
 									  
-									  timer.Simple( hitDelay, function()
-											if ball and ball:IsValid() then ball:Remove() end
-											
-											local OrangePortalEnt = owner:GetNWEntity( "Portal:Orange", nil )
-											local BluePortalEnt = owner:GetNWEntity( "Portal:Blue", nil )
-										   
-											local EntToUse = type == TYPE_BLUE and BluePortalEnt or OrangePortalEnt
-											local OtherEnt = type == TYPE_BLUE and OrangePortalEnt or BluePortalEnt
-											if !IsValid( EntToUse ) then
-										   
-													local Portal = ents.Create( "prop_portal" )
-													Portal:SetPos( validpos )
-													Portal:SetAngles( validnormang )
-													Portal:Spawn()
-													Portal:Activate()
-													Portal:SetMoveType( MOVETYPE_NONE )
-													Portal:SetActivatedState(true)
-													Portal:SetType( type )
-													Portal:SuccessEffect()
-												   
-													if type == TYPE_BLUE then
-												   
-															owner:SetNWEntity( "Portal:Blue", Portal )
-															Portal:SetNetworkedBool("blue",true,true)
-														   
-													else
-												   
-															owner:SetNWEntity( "Portal:Orange", Portal )
-															Portal:SetNetworkedBool("blue",false,true)
-														   
-													end
-												   
-													EntToUse = Portal
-												   
-													if IsValid( OtherEnt ) then
-												   
-															EntToUse:LinkPortals( OtherEnt )
-														   
-													end
-												   
-											else
-										   
-													EntToUse:MoveToNewPos( validpos, validnormang )
-													EntToUse:SuccessEffect()
-												   
+									  timer.Simple( hitDelay - .05, function()
+											if ball and ball:IsValid() then 
+												ball:Remove()
+												
+												local OrangePortalEnt = owner:GetNWEntity( "Portal:Orange", nil )
+												local BluePortalEnt = owner:GetNWEntity( "Portal:Blue", nil )
+											   
+												local EntToUse = type == TYPE_BLUE and BluePortalEnt or OrangePortalEnt
+												local OtherEnt = type == TYPE_BLUE and OrangePortalEnt or BluePortalEnt
+												if !IsValid( EntToUse ) then
+											   
+														local Portal = ents.Create( "prop_portal" )
+														Portal:SetPos( validpos )
+														Portal:SetAngles( validnormang )
+														Portal:Spawn()
+														Portal:Activate()
+														Portal:SetMoveType( MOVETYPE_NONE )
+														Portal:SetActivatedState(true)
+														Portal:SetType( type )
+														Portal:SuccessEffect()
+													   
+														if type == TYPE_BLUE then
+													   
+																owner:SetNWEntity( "Portal:Blue", Portal )
+																Portal:SetNetworkedBool("blue",true,true)
+															   
+														else
+													   
+																owner:SetNWEntity( "Portal:Orange", Portal )
+																Portal:SetNetworkedBool("blue",false,true)
+															   
+														end
+													   
+														EntToUse = Portal
+													   
+														if IsValid( OtherEnt ) then
+													   
+																EntToUse:LinkPortals( OtherEnt )
+															   
+														end
+													   
+												else
+											   
+														EntToUse:MoveToNewPos( validpos, validnormang )
+														EntToUse:SuccessEffect()
+													   
+												end
 											end
 										end )
                                 else

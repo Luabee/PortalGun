@@ -54,10 +54,6 @@ function ENT:Initialize( )
 	self:SetNWBool("Potal:Linked",false)
 	self:SetNWInt("Potal:PortalType",self.PortalType)
 	
-	if self:OnFloor() then
-		self:SetPos( self:GetPos() + Vector(0,0,20) )
-	end
-	
 	self.Sides = ents.Create( "prop_physics" )
 	self.Sides:SetModel( "models/blackops/portal_sides.mdl" )
 	self.Sides:SetPos( self:GetPos() + self:GetForward()*-0.1 )
@@ -79,6 +75,9 @@ function ENT:Initialize( )
 	
 	self:DeleteOnRemove(self.Sides)
 	
+	if self:OnFloor() then
+		self:SetPos( self:GetPos() + Vector(0,0,20) )
+	end
 	
 	self.portal_loop = CreateSound(self,"portal_loop")
 	self.portal_loop:Play()
@@ -160,14 +159,16 @@ function ENT:MoveToNewPos(pos,newang) --Called by the swep, used if a player alr
 		self:GetOther():BootPlayer()
 	end
 	
-	if self:OnFloor() then
-		pos.z = pos.z + 20
-	end
 	self:SetPos( pos )
 	
 	if IsValid( self.Sides ) then
 		self.Sides:SetPos(pos)
 		self.Sides:SetAngles(newang)
+	end
+	
+	if self:OnFloor() then
+		pos.z = pos.z + 20
+		self:SetPos( pos )
 	end
 	
 	umsg.Start("Portal:Moved" )

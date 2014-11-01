@@ -9,6 +9,7 @@ resource.AddFile("particles/particles_manifest.txt")
 resource.AddFile("particles/portal_projectile.pcf")
 resource.AddFile("particles/portalgun.pcf")
 resource.AddFile("particles/portals.pcf")
+resource.AddFile("particles/cleansers.pcf")
 resource.AddFile("particles/wip_muzzle.pcf")
 
 resource.AddFile("materials/sprites/blborder.vmt")

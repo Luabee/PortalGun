@@ -446,7 +446,6 @@ usermessage.Hook( "Portal:ObjectInPortal", function(umsg)
         local ent = umsg:ReadEntity()
         if IsValid( ent ) and IsValid( portal ) then
 			ent.InPortal = portal
-			local other = portal:GetOther()
 			
 			ent:SetRenderClipPlaneEnabled( true )
 			ent:SetGroundEntity( portal )

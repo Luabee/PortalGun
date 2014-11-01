@@ -86,6 +86,7 @@ net.Receive( 'PORTALGUN_PICKUP_PROP', function()
 		self.ViewModelOverride.startCarry = false
 		-- self.ViewModelOverride:SetParent(self.Owner)
 		function self.ViewModelOverride.PreDraw(vm)
+			vm:SetColor(Color(255,255,255))
 			local oldorigin = EyePos() -- -EyeAngles():Forward()*10
 			local pos, ang = self:CalcViewModelView(vm,oldorigin,EyeAngles(),vm:GetPos(),vm:GetAngles())
 			return pos, ang
@@ -173,18 +174,17 @@ function SWEP:DoPickupAnimations(vm)
 	end
 end
 
-hook.Add("PreDrawViewModel", "View model pickup override", function(vm)
+hook.Add("HUDPaint", "View model pickup override", function(vm)
 	local weapon = LocalPlayer():GetActiveWeapon()
 	if CLIENT and IsValid(weapon.ViewModelOverride) then
 		cam.Start3D(EyePos(),EyeAngles(),weapon.ViewModelFOV+10)
 			local pos,ang = weapon.ViewModelOverride:PreDraw()
+			render.SetColorModulation(1,1,1,255)
 			render.Model({pos=pos,angle=ang,model=weapon.ViewModel},weapon.ViewModelOverride)
 			weapon:ViewModelDrawn(weapon.ViewModelOverride)
 			weapon:DoPickupAnimations(weapon.ViewModelOverride)
 			weapon:DrawPickupEffects(weapon.ViewModelOverride)
 		cam.End3D()
-		
-		
 	end
 end)
 

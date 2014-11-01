@@ -6,7 +6,7 @@ end
 local plymeta = FindMetaTable("Player")
 function plymeta:PortalGroundCheck(b)
 	if self:OnGround() and (not IsValid(self.InPortal)) then return true end
-	if IsValid(self.InPortal) and self.InPortal:IsHorizontal() then
+	if IsValid(self.InPortal) and self.InPortal.IsHorizontal and self.InPortal:IsHorizontal() then
 		local z = self.InPortal:WorldToLocal( self:GetPos() ).z
 		local min = b and -55 or -55.1
 		if z >= min then
@@ -53,7 +53,7 @@ timer.Simple(.1, function()
 			end
 			
 			if ( ply:WaterLevel() >= 2 ) ||	( (CurTime() - ply.m_flJumpStartTime) > 0.2 ) then
-				if IsValid(ply.InPortal) and ply.InPortal:IsHorizontal() then
+				if IsValid(ply.InPortal) and ply.InPortal.IsHorizontal and ply.InPortal:IsHorizontal() then
 					local z = ply.InPortal:WorldToLocal( ply:GetPos() ).z
 					if z == -55 then
 						ply.m_bJumping = false
