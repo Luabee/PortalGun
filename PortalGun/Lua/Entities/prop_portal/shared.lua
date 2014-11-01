@@ -16,14 +16,135 @@ function ENT:UpdateTransmitState() return TRANSMIT_ALWAYS end
 ENT.Spawnable			= false
 ENT.AdminSpawnable		= false
 
+
+local Plymeta = FindMetaTable("Player")
+function Plymeta:SetHeadPos(v)
+	v.z = v.z-64
+	self:SetPos(v)
+end
+function Plymeta:GetHeadPos(v)
+	local r = self:GetPos(v)
+	r.z = r.z+64
+	return self:EyePos()
+end
+
+local function IsBehind( posA, posB, normal )
+
+	local Vec1 = ( posB - posA ):GetNormalized()
+
+	return ( normal:Dot( Vec1 ) < 0 )
+
+end
+
+
+--Mahalis code..
+function ENT:TransformOffset(v,a1,a2)
+	return (v:Dot(a1:Right()) * a2:Right() + v:Dot(a1:Up()) * (-a2:Up()) + v:Dot(a1:Forward()) * a2:Forward())
+end
+
+function ENT:GetPortalAngleOffsets(portal,ent)
+	local angles = ent:GetAngles()
+	
+	local normal = self:GetForward()
+	local forward = angles:Forward()
+	local up = angles:Up()
+	
+	// reflect forward
+	local dot = forward:DotProduct( normal )
+	forward = forward + ( -2 * dot ) * normal
+	
+	// reflect up		
+	local dot = up:DotProduct( normal )
+	up = up + ( -2 * dot ) * normal
+	
+	// convert to angles
+	angles = math.VectorAngles( forward, up );
+	
+	local LocalAngles = self:WorldToLocalAngles( angles );
+	
+	// repair
+	LocalAngles.y = -LocalAngles.y;
+	LocalAngles.r = -LocalAngles.r;
+	
+	return portal:LocalToWorldAngles( LocalAngles )
+end
+
+function ENT:GetPortalPosOffsets(portal,ent)
+	local pos
+	if ent:IsPlayer() then 
+		pos = ent:GetHeadPos() 
+	else 
+		pos = ent:GetPos()
+	end
+	local offset = self:WorldToLocal(pos)
+	offset.x = -offset.x;
+	offset.y = -offset.y;
+	
+	local output = portal:LocalToWorld( offset )
+	if ent:IsPlayer() and SERVER then
+		return output + self:GetFloorOffset(output)
+	else
+		return output
+	end
+end
+
+function ENT:PlayerWithinBounds(ent,predicting)
+	local offset = Vector(0,0,0)
+	if predicting then offset = ent:GetVelocity()*FrameTime() end
+	
+	local pOrg = self:GetPos()
+	if self:OnFloor() then
+		self:SetPos(pOrg - Vector(0,0,20))
+		pOrg = pOrg - Vector(0,0,20)
+	end
+	
+	local plyPos = self:WorldToLocal(ent:GetPos()+offset)
+	local headPos = self:WorldToLocal(ent:GetHeadPos()+offset)
+	local frontDist
+	if self:IsHorizontal() then
+		local OBBPos = util.ClosestPointInOBB(pOrg,ent:OBBMins(),ent:OBBMaxs(),ent:GetPos()+offset,false)
+		frontDist = OBBPos:PlaneDistance(pOrg,self:GetForward())
+	else
+		frontDist = math.min((ent:GetPos()+offset):PlaneDistance(self:GetPos(),self:GetForward()), (ent:GetHeadPos()+offset):PlaneDistance(self:GetPos(),self:GetForward()))
+	end
+	
+	if self:OnFloor() then
+		self:SetPos(pOrg + Vector(0,0,20))
+	end
+	
+	if frontDist > 17 then 
+		return false 
+	end
+	if self:IsHorizontal() then
+	--[[Check if the player is actually within the bounds of the portal.
+		Player's feet and head must be in the portal to enter.
+		portal dimensions: 64 wide, 104 tall]]
+		
+		//must be in the portal.
+		
+		
+		if headPos.z > 52 then return false end
+		-- print("Head is in Z.")
+		if (ent:OnGround() and plyPos.z+ent:GetStepSize() or plyPos.z) < -52 then return false end
+		-- print("Feet are in Z.")
+		if plyPos.y > 17 then return false end
+		-- print("Left is in x")
+		if plyPos.y < -17 then return false end
+		-- print("Right is in x")
+	else
+		//must be in the portal.
+		
+		if plyPos.z > 44 then return false end
+		if plyPos.z < -44 then return false end
+		if plyPos.y > 20 then return false end
+		if plyPos.y < -20 then return false end
+	end
+	return true
+end
+
 function ENT:SetType( int )
 	self:SetNWInt("Potal:PortalType",int)
 	self.PortalType = int
-	
-	--[[umsg.Start("Portal:SetPortalType" )
-	umsg.Entity( self )
-	umsg.Long( int )
-	umsg.End()]]
 	
 	if self.Activated == true then
 		if SERVER then

@@ -16,6 +16,13 @@ local WElements = {
 	["BodyLight"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Bip01_R_Hand", rel = "", pos = Vector(7, 1.40, -4.801), size = { x = 2.8, y = 2.8 }, color = Color(255, 255, 255, 255), nocull = true, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false}
 }
 
+local BobTime = 0
+local BobTimeLast = CurTime()
+
+local SwayAng = nil
+local SwayOldAng = Angle()
+local SwayDelta = Angle()
+
 function SWEP:Initialize()
 
 	self.Weapon:SetNetworkedInt("LastPortal",0,true)
@@ -48,21 +55,138 @@ function SWEP:Initialize()
 
 end
 
-function SWEP:Holster()
+net.Receive( 'PORTALGUN_PICKUP_PROP', function()
+	local self = net.ReadEntity()
+	local ent = net.ReadEntity()
 	
-	if IsValid(self.Owner) then
-		local vm = self.Owner:GetViewModel()
-		if IsValid(vm) then
-			self:ResetBonePositions(vm)
+	if !IsValid( ent ) then
+		--Drop it.
+		if self.PickupSound then
+			self.PickupSound:Stop()
+			self.PickupSound = nil
+			EmitSound( Sound( 'player/object_use_stop_01.wav' ), self:GetPos(), 1, CHAN_AUTO, 0.4, 100, 0, 100 )
 		end
+		if self.ViewModelOverride then
+			self.ViewModelOverride:Remove()
+		end
+	else
+		--Pick it up.
+		if !self.PickupSound and CLIENT then
+			self.PickupSound = CreateSound( self, 'player/object_use_lp_01.wav' )
+			self.PickupSound:Play()
+			self.PickupSound:ChangeVolume( 0.5, 0 )
+		end
+		
+		-- self.ViewModelOverride = true
+		
+		self.ViewModelOverride = ClientsideModel(self.ViewModel,RENDERGROUP_OPAQUE)
+		self.ViewModelOverride:SetPos(EyePos()-LocalPlayer():GetForward()*(self.ViewModelFOV/5))
+		self.ViewModelOverride:SetAngles(EyeAngles())
+		self.ViewModelOverride.AutomaticFrameAdvance = true
+		self.ViewModelOverride.startCarry = false
+		-- self.ViewModelOverride:SetParent(self.Owner)
+		function self.ViewModelOverride.PreDraw(vm)
+			local oldorigin = EyePos() -- -EyeAngles():Forward()*10
+			local pos, ang = self:CalcViewModelView(vm,oldorigin,EyeAngles(),vm:GetPos(),vm:GetAngles())
+			return pos, ang
+		end
+		
 	end
 	
-	return true
+	self.HoldenProp = ent
+end )
+
+local GravityLight,GravityBeam = Material("sprites/portalgunsprites/grav_flare"),Material("sprites/portalgunsprites/grav_beam.png","unlitgeneric")
+local GravitySprites = {
+	{bone = "ValveBiped.Arm1_C", pos = Vector(-1, -0.1, 0.8), size = { x = 2.5, y = 2.5 }},
+	{bone = "ValveBiped.Arm2_C", pos = Vector(0, 1.2, 1), size = { x = 2.5, y = 2.5 }},
+	{bone = "ValveBiped.Arm3_C", pos = Vector(0, 1.2, 1), size = { x = 2.5, y = 2.5 }}
+}
+function SWEP:DrawPickupEffects(ent)
+	
+	//Draw the lights
+	local lightOrigins = {}
+	for k,v in pairs(GravitySprites) do
+		local bone = ent:LookupBone(v.bone)
+
+		if (!bone) then return end
+		
+		local pos, ang = Vector(0,0,0), Angle(0,0,0)
+		local m = ent:GetBoneMatrix(bone)
+		if (m) then
+			pos, ang = m:GetTranslation(), m:GetAngles()
+		end
+		
+		if (IsValid(self.Owner) and self.Owner:IsPlayer() and 
+			ent == self.Owner:GetViewModel() and self.ViewModelFlip) then
+			ang.r = -ang.r // Fixes mirrored models
+		end
+			
+		if (!pos) then continue end
+		
+		local col = Color(255, 255, 255, 100)
+		local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
+		local _sin = math.abs( math.sin( CurTime( ) * 1 ) ) * 1; //math.sinwave( 25, 3, true )
+		
+		render.SetMaterial(GravityLight)
+		for i=0, 1, .4 do --visible in daylight.
+			render.DrawSprite(drawpos, v.size.x+_sin+i, v.size.y+_sin+i, col)
+		end
+		
+		lightOrigins[k] = drawpos
+			
+	end
+	
+	
+	//Draw the beams and center sprite.
+	local bone = ent:GetBoneMatrix(ent:LookupBone("ValveBiped.Front_Cover")) 
+	local endpos,ang = bone:GetTranslation(),bone:GetAngles()
+	local _sin = math.abs( math.sin( 1+CurTime( ) * 1 ) ) * 1
+	endpos = endpos + ang:Up()*6 + ang:Right()*-1.8
+	
+	for i=0, 1, .4 do --visible in daylight.
+		render.DrawSprite(endpos, 5+_sin+i, 5+_sin+i, col)
+	end
+	
+	render.SetMaterial(GravityBeam)
+	if math.random(0,1) == 1 then
+		render.DrawBeam(lightOrigins[1],endpos,1,0,1,Color(255,255,255,100))
+		render.DrawBeam(lightOrigins[2],endpos,1,0,1,Color(255,255,255,100))
+		render.DrawBeam(lightOrigins[3],endpos,1,0,1,Color(255,255,255,100))
+	else
+		render.DrawBeam(endpos,lightOrigins[1],1,0,1,Color(255,255,255,100))
+		render.DrawBeam(endpos,lightOrigins[2],1,0,1,Color(255,255,255,100))
+		render.DrawBeam(endpos,lightOrigins[3],1,0,1,Color(255,255,255,100))
+	end
+	
 end
 
-function SWEP:OnRemove()
-	self:Holster()
+function SWEP:DoPickupAnimations(vm)
+	-- local toIdle = vm:LookupSequence("carrying_to_idle")
+	local toCarry, toCarryLength = vm:LookupSequence("idle_to_carrying")
+	local carry, carryLength = vm:LookupSequence("idle_carrying")
+	if not vm.StartCarry then
+		vm.StartCarry = CurTime() + (toCarryLength/10)
+		vm:SetSequence(toCarry)
+	elseif CurTime() > vm.StartCarry then
+		vm:SetSequence(carry)
+	end
 end
+
+hook.Add("PreDrawViewModel", "View model pickup override", function(vm)
+	local weapon = LocalPlayer():GetActiveWeapon()
+	if CLIENT and IsValid(weapon.ViewModelOverride) then
+		cam.Start3D(EyePos(),EyeAngles(),weapon.ViewModelFOV+10)
+			local pos,ang = weapon.ViewModelOverride:PreDraw()
+			render.Model({pos=pos,angle=ang,model=weapon.ViewModel},weapon.ViewModelOverride)
+			weapon:ViewModelDrawn(weapon.ViewModelOverride)
+			weapon:DoPickupAnimations(weapon.ViewModelOverride)
+			weapon:DrawPickupEffects(weapon.ViewModelOverride)
+		cam.End3D()
+		
+		
+	end
+end)
 
 function SWEP:ViewModelDrawn(vm)
 	if (!self.VElements) then return end
@@ -90,7 +214,7 @@ function SWEP:ViewModelDrawn(vm)
 			local _sin = math.abs( math.sin( CurTime( ) * 1 ) ) * .3; //math.sinwave( 25, 3, true )
 			
 			render.SetMaterial(sprite)
-			for i=0, 1, .1 do --visible in daylight.
+			for i=0, 1, .2 do --visible in daylight.
 				render.DrawSprite(drawpos, v.size.x+_sin+i, v.size.y+_sin+i, col)
 			end
 			
@@ -198,9 +322,9 @@ function SWEP:DrawWorldModel()
 			
 			local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
 			local last =  self:GetNetworkedInt("LastPortal",0)
-			local col = last == TYPE_BLUE and Color(0, 87, 255) or (last == TYPE_ORANGE and Color(255, 130, 20) or Color(255, 255, 255, 100))
+			local col = last == TYPE_BLUE and Color(64, 160, 255) or (last == TYPE_ORANGE and Color(255, 160, 32) or Color(255, 255, 255, 100))
 			render.SetMaterial(sprite)
-			for i=0, 1, .1 do --visible in daylight.
+			for i=0, 1, .2 do --visible in daylight.
 			render.DrawSprite(drawpos, v.size.x, v.size.y, col)
 			end
 			
@@ -360,43 +484,58 @@ function table.FullCopy( tab )
 end
 
 
-
-local mat = Material("sprites/portalgun_effects");
-local function PulsingSprite(a,x,y,z)
-	local _pos = a.Pos + a.Ang:Forward( ) * x + a.Ang:Up( ) * z + a.Ang:Right( ) * y
-	local _sin = math.abs( math.sin( CurTime( ) * 1 ) ) * 1; //math.sinwave( 25, 3, true )
-	render.SetMaterial(mat)
-	render.DrawSprite( _pos, 5 + _sin, 5 + _sin, Color( 196, 65, 0, 155 ) )
-	render.DrawSprite( _pos, 20 + _sin, 20 + _sin, Color( 196, 65, 0, 10 ) )
+function SWEP:Holster()
+	
+	if IsValid(self.Owner) then
+		local vm = self.Owner:GetViewModel()
+		if IsValid(vm) then
+			self:ResetBonePositions(vm)
+			if self.PickupSound then
+				self.PickupSound:Stop()
+				self.PickupSound = nil
+			end
+		end
+	end
+	
+	return true
 end
 
-
+function SWEP:OnRemove()
+	self:Holster()
+end
 
 /*---------------------------------------------------------
    Name: CalcViewModelView
    Desc: Overwrites the default GMod v_model system.
 ---------------------------------------------------------*/
+
+
+local sin, abs, pi, clamp, min = math.sin, math.abs, math.pi, math.Clamp, math.min
 function SWEP:CalcViewModelView(ViewModel, oldPos, oldAng, pos, ang)
 
 	local pPlayer = self.Owner
-	local Speed = pPlayer:GetVelocity():Length2D()
+
 	local CT = CurTime()
 	local FT = FrameTime()
+
+	local RunSpeed = pPlayer:GetRunSpeed()
+	local Speed = clamp(pPlayer:GetVelocity():Length2D(), 0, RunSpeed)
+
 	local BobCycleMultiplier = Speed / pPlayer:GetRunSpeed()
 
-	BobCycleMultiplier = (BobCycleMultiplier > 1 and math.min(1 + ((BobCycleMultiplier - 1) * 0.2), 5) or BobCycleMultiplier)
+	BobCycleMultiplier = (BobCycleMultiplier > 1 and min(1 + ((BobCycleMultiplier - 1) * 0.2), 5) or BobCycleMultiplier)
 	BobTime = BobTime + (CT - BobTimeLast) * (Speed > 0 and (Speed / pPlayer:GetWalkSpeed()) or 0)
 	BobTimeLast = CT
-	local BobCycleX = math.sin(BobTime * 0.5 % 1 * math.pi * 2) * BobCycleMultiplier
-	local BobCycleY = math.sin(BobTime % 1 * math.pi * 2) * BobCycleMultiplier
+	local BobCycleX = sin(BobTime * 0.5 % 1 * pi * 2) * BobCycleMultiplier
+	local BobCycleY = sin(BobTime % 1 * pi * 2) * BobCycleMultiplier
 
 	oldPos = oldPos + oldAng:Right() * (BobCycleX * 1.5)
 	oldPos = oldPos
 	oldPos = oldPos + oldAng:Up() * BobCycleY/2
 
 	SwayAng = oldAng - SwayOldAng
-	if math.abs(oldAng.y - SwayOldAng.y) > 180 then
-		SwayAng.y = (360 - math.abs(oldAng.y - SwayOldAng.y)) * math.abs(oldAng.y - SwayOldAng.y) / (SwayOldAng.y - oldAng.y)
+	if abs(oldAng.y - SwayOldAng.y) > 180 then
+		SwayAng.y = (360 - abs(oldAng.y - SwayOldAng.y)) * abs(oldAng.y - SwayOldAng.y) / (SwayOldAng.y - oldAng.y)
 	else
 		SwayAng.y = oldAng.y - SwayOldAng.y
 	end
@@ -404,7 +543,7 @@ function SWEP:CalcViewModelView(ViewModel, oldPos, oldAng, pos, ang)
 	SwayOldAng.y = oldAng.y
 	SwayAng.p = math.Clamp(SwayAng.p, -3, 3)
 	SwayAng.y = math.Clamp(SwayAng.y, -3, 3)
-	SwayDelta = LerpAngle(math.Clamp(FrameTime() * 5, 0, 1), SwayDelta, SwayAng)
+	SwayDelta = LerpAngle(clamp(FT * 5, 0, 1), SwayDelta, SwayAng)
 	
 	return oldPos + oldAng:Up() * SwayDelta.p + oldAng:Right() * SwayDelta.y + oldAng:Up() * oldAng.p / 90 * 2, oldAng
 end
@@ -419,8 +558,8 @@ local leftpos = {x=0,y=0}
 local rightpos = {x=7,y=13}
 local sizeLarge = {w=46,h=64}
 local sizeSmall = {w=30,h=64}
-local cBlu = Color(80,161,255,255)
-local cOrg = Color(255,174,0,255)
+local cBlu = Color(64,160,255,255)
+local cOrg = Color(255,160,32,255)
 function SWEP:DrawHUD()
 	if !reticle:GetBool() then return end
 

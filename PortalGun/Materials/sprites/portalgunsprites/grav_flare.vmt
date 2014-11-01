@@ -1,0 +1,7 @@
+UnlitGeneric
+{
+$basetexture "sprites/portalgunsprites/grav_flare"
+$additive 1
+$vertexcolor 1
+$vertexalpha 1
+}

@@ -4,11 +4,12 @@ if( SERVER ) then
 end
 
 local plymeta = FindMetaTable("Player")
-function plymeta:PortalGroundCheck()
+function plymeta:PortalGroundCheck(b)
 	if self:OnGround() and (not IsValid(self.InPortal)) then return true end
 	if IsValid(self.InPortal) and self.InPortal:IsHorizontal() then
 		local z = self.InPortal:WorldToLocal( self:GetPos() ).z
-		if z >= -55 then
+		local min = b and -55 or -55.1
+		if z >= min then
 			return true
 		end
 	end
@@ -92,7 +93,7 @@ timer.Simple(.1, function()
 
 	function GAMEMODE:HandlePlayerNoClipping( ply, velocity )
 
-		if ( ply:GetMoveType() != MOVETYPE_NOCLIP || ply:InVehicle() or ply:PortalGroundCheck()) then 
+		if ( ply:GetMoveType() != MOVETYPE_NOCLIP || ply:InVehicle() or IsValid(ply.InPortal)) then 
 
 			if ( ply.m_bWasNoclipping ) then
 
@@ -121,7 +122,6 @@ timer.Simple(.1, function()
 
 		if ( velocity:Length() < 1000 ) then return end
 		if ( ply:PortalGroundCheck() ) then return end
-
 		ply.CalcIdeal = ACT_MP_SWIM	
 		
 		return true
@@ -323,7 +323,7 @@ timer.Simple(.1, function()
 
 		end
 
-		ply.m_bWasOnGround = ply:PortalGroundCheck()
+		ply.m_bWasOnGround = ply:PortalGroundCheck(true)
 		ply.m_bWasNoclipping = ( ply:GetMoveType() == MOVETYPE_NOCLIP && !ply:InVehicle() and not ply:PortalGroundCheck() )
 
 		return ply.CalcIdeal, ply.CalcSeqOverride

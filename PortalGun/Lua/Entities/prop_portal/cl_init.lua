@@ -128,10 +128,8 @@ function ENT:Think()
 	   -- end
 end
 
-local nonlinkedblue = surface.GetTextureID( "sprites/n0blue" )
-local nonlinkedorange = surface.GetTextureID( "sprites/n0red" )
--- local nonlinkedblue = surface.GetTextureID( "sprites/noblue" )
--- local nonlinkedorange = surface.GetTextureID( "sprites/nored" )
+local nonlinkedblue = surface.GetTextureID( "sprites/noblue" )
+local nonlinkedorange = surface.GetTextureID( "sprites/nored" )
 local bluebordermat = surface.GetTextureID( "sprites/blborder" )
 local orangebordermat = surface.GetTextureID( "sprites/ogborder" )
 local bluebetabordermat = surface.GetTextureID( "sprites/blueborder" )
@@ -163,7 +161,7 @@ function ENT:DrawPortalEffects( portaltype )
        
                 surface.SetDrawColor( 255, 255, 255, 255 )
        
-                if ( RENDERING_PORTAL or !self:GetNWBool( "Potal:Linked", false ) ) then
+                if ( RENDERING_PORTAL or !self:GetNWBool( "Potal:Linked", false ) or !self:GetNWBool( "Potal:Activated", false )) then
                
                         if portaltype == TYPE_BLUE then
 						
@@ -193,22 +191,6 @@ function ENT:DrawPortalEffects( portaltype )
                         surface.DrawTexturedRect( 0, 0, width / res , height / res )
                        
                 end
-				
-			   if !self:GetNWBool( "Potal:Activated", false ) then
-			   
-						if portaltype == TYPE_BLUE then
-					   
-								surface.SetTexture( nonlinkedblue )
-							   
-						elseif portaltype == TYPE_ORANGE then
-					   
-								surface.SetTexture( nonlinkedorange )
-							   
-						end
-					   
-						surface.DrawTexturedRect( 0, 0, width / res , height / res )
-					   
-				end
 				
                 if bordersenabled:GetBool() == true then
                         if portaltype == TYPE_BLUE then
@@ -261,6 +243,7 @@ function ENT:DrawPortal()
 		render.SetStencilEnable( true )
 		
 			cam.Start3D2D(self:GetRenderOrigin(),self:GetAngles(),1)
+				
 				render.SetStencilWriteMask(3)
 				render.SetStencilTestMask(3)
 				render.SetStencilFailOperation( STENCILOPERATION_KEEP )
@@ -462,16 +445,19 @@ usermessage.Hook( "Portal:ObjectInPortal", function(umsg)
         local portal = umsg:ReadEntity()
         local ent = umsg:ReadEntity()
         if IsValid( ent ) and IsValid( portal ) then
-                ent.InPortal = portal
-                ent:SetRenderClipPlaneEnabled( true )
-        end
+			ent.InPortal = portal
+			local other = portal:GetOther()
+			
+			ent:SetRenderClipPlaneEnabled( true )
+			ent:SetGroundEntity( portal )
+		end
 end )
 
 usermessage.Hook( "Portal:ObjectLeftPortal", function(umsg)
         local ent = umsg:ReadEntity()
         if IsValid( ent ) then
-                ent.InPortal = false
-                ent:SetRenderClipPlaneEnabled(false)
+			ent.InPortal = false
+			ent:SetRenderClipPlaneEnabled(false)
         end
 end )
 

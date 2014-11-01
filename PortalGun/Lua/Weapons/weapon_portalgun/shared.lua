@@ -5,6 +5,9 @@ TYPE_ORANGE = 2
 
 PORTAL_HEIGHT = 110
 PORTAL_WIDTH = 68
+
+local limitPickups = CreateConVar("portal_limitcarry", 0, {FCVAR_ARCHIVE, FCVAR_SERVER_CAN_EXECUTE,FCVAR_REPLICATED}, "Whether to limit the Portalgun to pickup certain props from the Portal game.")
+
 local ballSpeed, useNoBalls
 if ( SERVER ) then
         AddCSLuaFile( "shared.lua" )
@@ -44,12 +47,35 @@ SWEP.EnableIdle				= false
 SWEP.BobScale = 0
 SWEP.SwayScale = 0
 
-BobTime = 0
-BobTimeLast = CurTime()
+SWEP.HoldenProp			= NULL
+SWEP.NextAllowedPickup	= 0
+SWEP.UseReleased		= true
+SWEP.PickupSound		= nil
+local pickable 			= {
+	'models/props/metal_box.mdl',
+	'models/props/futbol.mdl',
+	'models/props/sphere.mdl',
+	'models/props/metal_box_fx_fizzler.mdl',
+	'models/props/turret_01.mdl',
+	'models/props/reflection_cube.mdl',
+	'npc_turret_floor',
+	'npc_manhack',
+	'models/props/radio_reference.mdl',
+	'models/props/security_camera.mdl',
+	'models/props/security_camera_prop_reference.mdl',
+	'models/props_bts/bts_chair.mdl',
+	'models/props_bts/bts_clipboard.mdl',
+	'models/props_underground/underground_weighted_cube.mdl',
+	'models/XQM/panel360.mdl',
+	'models/props_bts/glados_ball_reference.mdl'
+}
 
-SwayAng = nil
-SwayOldAng = Angle()
-SwayDelta = Angle()
+local BobTime = 0
+local BobTimeLast = CurTime()
+
+local SwayAng = nil
+local SwayOldAng = Angle()
+local SwayDelta = Angle()
 
 --Holy shit more hold types (^_^)  <- That face is fucking gay, why do I use it..
 
@@ -139,6 +165,170 @@ SWEP.RunSway = 2.0
 
 SWEP.HasOrangePortal = false
 SWEP.HasBluePortal = false
+
+function SWEP:Initialize()
+	if CLIENT then
+		self.Weapon:SetNetworkedInt("LastPortal",0,true)
+		self:SetWeaponHoldType( self.HoldType )
+
+
+		// Create a new table for every weapon instance
+		self.VElements = table.FullCopy( VElements )
+		self.WElements = table.FullCopy( WElements )
+		
+		// init view model bone build function
+		if IsValid(self.Owner) then
+			local vm = self.Owner:GetViewModel()
+			if IsValid(vm) then
+				self:ResetBonePositions(vm)
+				
+				// Init viewmodel visibility
+				if (self.ShowViewModel == nil or self.ShowViewModel) then
+					vm:SetColor(Color(255,255,255,255))
+				else
+					// we set the alpha to 1 instead of 0 because else ViewModelDrawn stops being called
+					vm:SetColor(Color(255,255,255,1))
+					// ^ stopped working in GMod 13 because you have to do Entity:SetRenderMode(1) for translucency to kick in
+					// however for some reason the view model resets to render mode 0 every frame so we just apply a debug material to prevent it from drawing
+					vm:SetMaterial("Debug/hsv")			
+				end
+			end
+		end
+		
+
+	else
+		
+		self.Weapon:SetNetworkedInt("LastPortal",0,true)
+        self:SetWeaponHoldType( self.HoldType )
+       
+	end
+end
+
+if SERVER then
+	util.AddNetworkString( 'PORTALGUN_PICKUP_PROP' )
+
+	hook.Add( 'AllowPlayerPickup', 'PortalPickup', function( ply, ent )
+		if IsValid( ply:GetActiveWeapon() ) and IsValid( ent ) and ply:GetActiveWeapon():GetClass() == 'weapon_portalgun' then --and (table.HasValue( pickable, ent:GetModel() ) or table.HasValue( pickable, ent:GetClass() )) then
+			return false
+		end
+	end )
+end
+
+hook.Add("Think", "Portalgun Holding Item", function()
+	for k,v in pairs(player.GetAll())do
+		if v:KeyDown(IN_USE) then
+			if v:GetActiveWeapon().NextAllowedPickup and v:GetActiveWeapon().NextAllowedPickup < CurTime() then
+				if v:GetActiveWeapon().UseReleased then
+					v:GetActiveWeapon().UseReleased = false
+					if IsValid( v:GetActiveWeapon().HoldenProp ) then
+						v:GetActiveWeapon():OnDroppedProp()
+					end
+				end
+			end
+		else
+			v:GetActiveWeapon().UseReleased = true
+		end
+	end
+end)
+
+function SWEP:Think()
+	
+	-- // HOLDING FUNC
+	
+	if SERVER then
+		if IsValid(self.HoldenProp) and (!self.HoldenProp:IsPlayerHolding() or self.HoldenProp.Holder != self.Owner) then
+			self:OnDroppedProp()
+		elseif not IsValid(self.HoldenProp) then
+			self:OnDroppedProp()
+		end
+		if self.Owner:KeyDown( IN_USE ) and self.UseReleased then
+			self.UseReleased = false
+			if self.NextAllowedPickup < CurTime() and !IsValid(self.HoldenProp) then
+			
+				local ply = self.Owner
+				self.NextAllowedPickup = CurTime() + 0.4
+				local tr = util.TraceLine( { 
+					start = ply:EyePos(),
+					endpos = ply:EyePos() + ply:GetForward() * 150,
+					filter = ply
+				} )
+					
+				//PICKUP FUNC
+				if IsValid( tr.Entity ) then
+					local entsize = ( tr.Entity:OBBMaxs() - tr.Entity:OBBMins() ):Length() / 2
+					if entsize > 45 then return end
+					if !IsValid( self.HoldenProp ) and tr.Entity:GetMoveType() != 2 then
+						if !self:PickupProp( tr.Entity ) then
+							self:EmitSound( 'player/object_use_failure_01.wav' )
+							self:SendWeaponAnim( ACT_VM_DRYFIRE )
+						end
+					end
+				end
+				
+				//PICKUP THROUGH PORTAL FUNC
+				--TODO
+				
+			end
+		end
+	end
+	
+	if CLIENT and self.EnableIdle then return end
+	if self.idledelay and CurTime() > self.idledelay then
+		self.idledelay = nil
+		self:SendWeaponAnim(ACT_VM_IDLE)
+	end
+
+end
+
+function SWEP:PickupProp( ent )
+	if !limitPickups:GetBool() or ( table.HasValue( pickable, ent:GetModel() ) or table.HasValue( pickable, ent:GetClass() ) )then
+		if self.Owner:GetGroundEntity() == ent then return false end
+		
+		//Take it from other players.
+		if ent:IsPlayerHolding() and ent.Holder and ent.Holder:IsValid() then
+			ent.Holder:GetActiveWeapon():OnDroppedProp()
+		end
+		
+		self.HoldenProp = ent
+		ent.Holder = self.Owner
+		
+		//Rotate it first
+		local angOffset = hook.Call("GetPreferredCarryAngles",GAMEMODE,ent) 
+		if angOffset then
+			ent:SetAngles(self.Owner:EyeAngles() + angOffset)
+		end
+		
+		//Pick it up.
+		self.Owner:PickupObject(ent)
+		
+		self:SendWeaponAnim( ACT_VM_DEPLOY )
+		
+		if SERVER then
+			net.Start( 'PORTALGUN_PICKUP_PROP' )
+				net.WriteEntity( self )
+				net.WriteEntity( ent )
+			net.Send( self.Owner )
+		end
+		return true
+	end
+	return false
+end
+
+function SWEP:OnDroppedProp()
+	if not self.HoldenProp then return end
+	self:SendWeaponAnim(ACT_VM_RELEASE)
+	if SERVER then
+		self.Owner:DropObject()
+	end
+	self.HoldenProp.Holder = nil
+	self.HoldenProp = nil
+	if SERVER then
+		net.Start( 'PORTALGUN_PICKUP_PROP' )
+			net.WriteEntity( self )
+			net.WriteEntity( NULL )
+		net.Send( self.Owner )
+	end
+end
 
 function SWEP:GetViewModelPosition( pos, ang )
 
@@ -497,19 +687,6 @@ function SWEP:Deploy()
 end
 
 function SWEP:OnRestore()
-end
-
-function SWEP:Think()
-
-	if CLIENT and self.EnableIdle then return end
-	if self.idledelay and CurTime() > self.idledelay then
-		self.idledelay = nil
-		self:SendWeaponAnim(ACT_VM_IDLE)
-	end
-
-end
-
-function SWEP:DrawHUD()
 end
 
 /*---------------------------------------------------------

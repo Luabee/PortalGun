@@ -75,14 +75,22 @@ if( CLIENT ) then
 
 end
 
-function SubAxis( v, x )
+local function SubAxis( v, x )
     return v - ( v:Dot( x ) * x )
+end
+local function IsInFront( posA, posB, normal )
+
+        local Vec1 = ( posB - posA ):GetNormalized()
+
+        return ( normal:Dot( Vec1 ) < 0 )
+		-- return true
+
 end
 
 local nextFootStepTime = CurTime()
 function ipMove( ply, mv )
 	local portal = ply.InPortal
-	if IsValid( portal ) and ply:GetMoveType() == MOVETYPE_NOCLIP then
+	if IsValid( portal ) and ply:GetMoveType() == MOVETYPE_NOCLIP then --and IsInFront( ply:EyePos(), ply.InPortal:GetPos(), ply.InPortal:GetForward() ) then
 		-- if ply:GetMoveType() != MOVETYPE_NOCLIP then
 			-- return
 		-- end
@@ -128,43 +136,6 @@ function ipMove( ply, mv )
 				PlayFootstep(ply,50,100,.4)
 			end
 		end
-		
-		--[[
-		Sound: 	player/footsteps/concrete3.wav
-		Volume: 	0.20000000298023
-		Speed: 	112.79998861791
-		Delay: 	1.1700134277344
-
-
-		Sound: 	player/footsteps/concrete2.wav
-		Volume: 	0.5
-		Speed: 	400.00348209394
-		Delay: 	0.2550048828125
-
-
-		Sound: 	player/footsteps/concrete1.wav
-		Volume: 	0.20000000298023
-		Speed: 	143.85394408199
-		Delay: 	0.25497436523438
-
-
-		Sound: 	player/footsteps/concrete2.wav
-		Volume: 	0.20000000298023
-		Speed: 	100.07615865394
-		Delay: 	1.125
-
-
-		Sound: 	player/footsteps/concrete1.wav
-		Volume: 	0.20000000298023
-		Speed: 	199.99999752928
-		Delay: 	0.36001586914063
-
-
-		Sound: 	player/footsteps/concrete4.wav
-		Volume: 	0.20000000298023
-		Speed: 	119.93908116976
-		Delay: 	0.3599853515625
-		]]
 		
 		//TODO: Gonna calculate these at some point.
 		-- local plyHeight = 72 --Player height
@@ -237,8 +208,6 @@ function ipMove( ply, mv )
 		-- if frontDist < 25.29 then
 			localOrigin.z = math.Clamp(localOrigin.z,minZ,maxZ)
 			localOrigin.y = math.Clamp(localOrigin.y,minY,maxY)
-		elseif frontDist < 16 then
-			localOrigin.y = math.Clamp(localOrigin.y,minY,maxY)
 		else
 			ply.InPortal = nil
 			ply:SetMoveType(MOVETYPE_WALK)
@@ -262,7 +231,6 @@ local vec = FindMetaTable("Vector")
 function vec:PlaneDistance(plane,normal)
 	return normal:Dot(self-plane)
 end
-
 
 function math.YawBetweenPoints(a,b)
 	local xDiff = a.x - b.x; 
@@ -326,80 +294,10 @@ if CLIENT then
 	end)
 end
 
--- hook.Add("Think", "OBBTest", function(ply)
-	-- for k,ply in pairs(player.GetAll())do
-		-- if CLIENT then
-			-- util.ClosestPointInOBB(Vector(0,0,0),ply:OBBMins(),ply:OBBMaxs(),ply:GetPos(),true)
-		-- end
-	-- end
--- end)
-
-
-local CanMoveThrough = {
-	CONTENTS_EMPTY,
-	CONTENTS_DEBRIS,
-	CONTENTS_WATER
-}
-
---everytick:
-local function CollisionBoxOutsideMap( ent, minBound, maxBound )
-	local pPos = ent:LocalToWorld(ent:OBBCenter())
-	if not util.IsInWorld( Vector( pPos.x+minBound.x, pPos.y+minBound.y, pPos.z+minBound.z ) ) then
-		
-		return true 
-	end
-	if not util.IsInWorld( Vector( pPos.x-minBound.x, pPos.y+minBound.y, pPos.z+minBound.z ) ) then
-		return true 
-	end
-	if not util.IsInWorld( Vector( pPos.x-minBound.x, pPos.y-minBound.y, pPos.z+minBound.z ) ) then
-		return true 
-	end
-	if not util.IsInWorld( Vector( pPos.x+minBound.x, pPos.y-minBound.y, pPos.z+minBound.z ) ) then
-		return true 
-	end
-	
-	if not util.IsInWorld( Vector( pPos.x+maxBound.x, pPos.y+maxBound.y, pPos.z+maxBound.z ) ) then
-		return true 
-	end
-	if not util.IsInWorld( Vector( pPos.x-maxBound.x, pPos.y+maxBound.y, pPos.z+maxBound.z ) ) then
-		return true 
-	end
-	if not util.IsInWorld( Vector( pPos.x-maxBound.x, pPos.y-maxBound.y, pPos.z+maxBound.z ) ) then
-		return true 
-	end
-	if not util.IsInWorld( Vector( pPos.x+maxBound.x, pPos.y-maxBound.y, pPos.z+maxBound.z ) ) then
-		return true 
-	end
-	
-	for i=0.2, 0.8, 0.2 do
-		if not util.IsInWorld( Vector( pPos.x, pPos.y, pPos.z+(maxBound.z+minBound.z)*i ) ) then
-			return true 
+if SERVER then
+	hook.Add("PreCleanupMap", "Remove portals individually", function()
+		for k,v in pairs(ents.FindByClass("prop_portal")) do
+			v:CleanMeUp()
 		end
-	end
-	
-	
-	
-	return false
-end
-local function CollisionBoxContainsProps( ent, minBound, maxBound )
-	local pPos = ent:LocalToWorld(ent:OBBCenter())
-	lowerBoxPos = Vector()
-	lowerBoxPos:Set(pPos)
-	lowerBoxPos:Add(minBound)
-	upperBoxPos = Vector()
-	upperBoxPos:Set(pPos)
-	upperBoxPos:Add(maxBound)
-	
-	t = ents.FindInBox(lowerBoxPos, upperBoxPos)
-	for key,value in pairs(t) do
-		if value == ent then continue end
-		if value:GetSolid() != SOLID_NONE then return true end
-	end
-	return false
-end
-
-function IsStuck(ply)
-	local a,b = CollisionBoxOutsideMap(ply,ply:OBBMins(), ply:OBBMaxs()), CollisionBoxContainsProps(ply,ply:OBBMins(), ply:OBBMaxs())
-	print( a, b)
-	return a or b
+	end)
 end

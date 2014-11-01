@@ -8,12 +8,6 @@ SWEP.AutoSwitchTo		= true		// Auto switch to if we pick it up
 SWEP.AutoSwitchFrom		= true		// Auto switch from if you pick up a better weapon
 
 
-function SWEP:Initialize()
-
-		self.Weapon:SetNetworkedInt("LastPortal",0,true)
-        self:SetWeaponHoldType( self.HoldType )
-       
-end
 
 /*---------------------------------------------------------
    Name: weapon:TranslateActivity( )
@@ -51,8 +45,9 @@ end
    Name: AcceptInput
    Desc: Accepts input, return true to override/accept input
 ---------------------------------------------------------*/
-function SWEP:AcceptInput( name, activator, caller, data )
-	return false
+function SWEP:AcceptInput( input, activator, called, data )
+	if input == 'FirePortal1' then self:PrimaryAttack() end
+	if input == 'FirePortal2' then self:SecondaryAttack() end
 end
 
 
