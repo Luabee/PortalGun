@@ -47,7 +47,7 @@ SWEP.EnableIdle				= false
 SWEP.BobScale = 0
 SWEP.SwayScale = 0
 
-SWEP.HoldenProp			= NULL
+SWEP.HoldenProp			= false
 SWEP.NextAllowedPickup	= 0
 SWEP.UseReleased		= true
 SWEP.PickupSound		= nil
@@ -238,7 +238,7 @@ function SWEP:Think()
 	if SERVER then
 		if IsValid(self.HoldenProp) and (!self.HoldenProp:IsPlayerHolding() or self.HoldenProp.Holder != self.Owner) then
 			self:OnDroppedProp()
-		elseif not IsValid(self.HoldenProp) then
+		elseif self.HoldenProp and not IsValid(self.HoldenProp) then
 			self:OnDroppedProp()
 		end
 		if self.Owner:KeyDown( IN_USE ) and self.UseReleased then
@@ -255,6 +255,7 @@ function SWEP:Think()
 					
 				//PICKUP FUNC
 				if IsValid( tr.Entity ) then
+					if tr.Entity.isClone then tr.Entity = tr.Entity.daddyEnt end
 					local entsize = ( tr.Entity:OBBMaxs() - tr.Entity:OBBMins() ):Length() / 2
 					if entsize > 45 then return end
 					if !IsValid( self.HoldenProp ) and tr.Entity:GetMoveType() != 2 then
@@ -679,14 +680,15 @@ end
 
 function SWEP:Deploy()
        
-        self.Weapon:SendWeaponAnim( ACT_VM_DRAW )
-		self:CheckExisting()
+        self.Weapon:SendWeaponAnim( ACT_VM_DEPLOY )
+		self:CheckExisting() 
 		self:IdleStuff()
         return true
        
 end
 
 function SWEP:OnRestore()
+	self.Weapon:SendWeaponAnim( ACT_VM_DEPLOY )
 end
 
 /*---------------------------------------------------------

@@ -81,6 +81,18 @@ function ENT:Initialize( )
 	
 	self.portal_loop = CreateSound(self,"portal_loop")
 	self.portal_loop:Play()
+	
+	for k,v in pairs(ents.FindInSphere(self:GetPos(),100))do
+		if v == self then continue end
+		if v == self.Sides then continue end
+		if v:GetClass() != "prop_physics" and v:GetClass() != "npc_turret_Floor" then continue end
+		local phys = v:GetPhysicsObject()
+		if IsValid(phys) then
+			print(v)
+			phys:Wake()
+			phys:ApplyForceCenter(Vector(0,0,10))
+		end
+	end
 end
 
 
@@ -242,6 +254,7 @@ function ENT:MakeClone(ent)
 	clone:SetPos(self:GetPortalPosOffsets(portal,ent))
 	clone:SetAngles(self:GetPortalAngleOffsets(portal,ent))
 	clone.isClone = true
+	clone.daddyEnt = ent
 	clone:SetModel(ent:GetModel())
 	clone:Spawn()
 	clone:SetSkin(ent:GetSkin())
@@ -296,7 +309,6 @@ function ENT:StartTouch(ent)
 			if phys:IsValid() then
 				phys:EnableMotion( true )
 				phys:Wake()
-				--print("WAKE UP "..ent:GetClass())
 			end
 		end
 		umsg.Start( "Portal:ObjectInPortal" )
