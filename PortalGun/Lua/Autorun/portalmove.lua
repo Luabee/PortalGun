@@ -13,7 +13,8 @@ local function PlayFootstep(ply,level,pitch,volume)
 	end	
 	lastfoot = lastfoot == 0 and 1 or 0
 	
-	if GAMEMODE:PlayerFootstep( ply, pos, lastfoot, "player/footsteps/concrete"..sound..".wav", .6, RecipientFilter():AddPVS(ply:GetPos()) ) then return end
+	local filter = SERVER and RecipientFilter():AddPVS(ply:GetPos()) or nil
+	if GAMEMODE:PlayerFootstep( ply, pos, lastfoot, "player/footsteps/concrete"..sound..".wav", .6, filter ) then return end
 
 	ply:EmitSound("player/footsteps/concrete"..sound..".wav",level,pitch,volume,CHAN_BODY)
 end

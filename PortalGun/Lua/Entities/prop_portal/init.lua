@@ -88,7 +88,7 @@ function ENT:Initialize( )
 		if v:GetClass() != "prop_physics" and v:GetClass() != "npc_turret_Floor" then continue end
 		local phys = v:GetPhysicsObject()
 		if IsValid(phys) then
-			print(v)
+			-- print(v)
 			phys:Wake()
 			phys:ApplyForceCenter(Vector(0,0,10))
 		end
@@ -483,7 +483,7 @@ local function BulletHook(ent,bullet)
 	for i=1, bullet.Num do
 		local tr = util.QuickTrace(bullet.Src, bullet.Dir*10000, ent)
 		
-		if tr.Entity and tr.Entity:GetClass() == "prop_portal" then
+		if IsValid(tr.Entity) and tr.Entity:GetClass() == "prop_portal" then
 			local inport = tr.Entity
 			
 			if inport:GetNWBool("Potal:Linked",false) == false or inport:GetNWBool("Potal:Activated",false) == false then return end
