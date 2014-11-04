@@ -21,7 +21,8 @@ Credits:
 Bobblehead - Making it actually work.  
 Mahalis - Some code.  
 Fernando5567 - Much code.  
-Matsilagi - Models/effects  
+Matsilagi - Models/effects
+Dr. Awesome - Swirly beta portal materials
 
 Other:
 ------
