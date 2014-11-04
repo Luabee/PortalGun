@@ -20,7 +20,7 @@ Credits:
 Bobblehead - Making it actually work.  
 Mahalis - Some code.  
 Fernando5567 - Much code.  
-Mitsilagi - Models/effects  
+Matsilagi - Models/effects  
 
 Other:
 ------
