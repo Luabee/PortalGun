@@ -1,4 +1,5 @@
 VertexLitGeneric
 {
-$basetexture "models\weapons\v_models\v_portalgun\v_hands"
+$basetexture "models/weapons/v_hands"
+$surfaceprop default
 }
