@@ -1,0 +1,19 @@
+"Refract"
+{
+ 	"Refract_DX60"
+	{
+		"$fallbackmaterial" "effects/portal_create_warp_dudv_dx60"
+	}
+
+ 	"$model" 1
+ 	"$refractamount" ".16"
+ 	"$bluramount" "0"
+//	"$scale" "[1 1]"
+ 	"$dudvmap" "effects/portal_create_warp_dudv"
+	"$nofog" "1"
+ 	"$normalmap" "effects/portal_create_warp_normal"
+	"$bumpframe" "0"
+	"$translucent" "1"
+	"$ignorez" "1"
+	"$forcerefract" 1
+}

@@ -1,0 +1,11 @@
+{
+	"title"		:	"DMG TTT & DarkRP Content Pack",
+	"type"		:	"model",
+	"tags"		:	[ "fun" ],
+	"ignore"	:
+	[
+		"*.psd",
+		"*.vcproj",
+		"*.svn*"
+	]
+}
