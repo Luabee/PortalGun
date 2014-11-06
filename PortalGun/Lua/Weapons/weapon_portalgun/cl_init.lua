@@ -1,6 +1,7 @@
 include("shared.lua")
 
 local reticle = CreateClientConVar("portal_crosshair","1",true,false)
+local drawArm = CreateClientConVar("portal_arm","0",true,false)
 
 local VElements = {
 	["BodyLight"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Base", rel = "", pos = Vector(0.25, -5.45, 10.5), size = { x = 1, y = 1 }, color = Color(255, 255, 255, 255), nocull = true, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
@@ -15,6 +16,11 @@ local VElements = {
 local WElements = {
 	["BodyLight"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Bip01_R_Hand", rel = "", pos = Vector(7, 1.40, -4.801), size = { x = 2.8, y = 2.8 }, color = Color(255, 255, 255, 255), nocull = true, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false}
 }
+
+local ViewModelBoneMods = {
+	["bicep_L"] = { scale = Vector(0.0001, 0.0001, 0.0001), pos = Vector(-30, 0, 0), angle = Angle(0, 0, 0) }
+}
+
 
 local BobTime = 0
 local BobTimeLast = CurTime()
@@ -32,6 +38,7 @@ function SWEP:Initialize()
 	// Create a new table for every weapon instance
 	self.VElements = table.FullCopy( VElements )
 	self.WElements = table.FullCopy( WElements )
+	self.ViewModelBoneMods = table.FullCopy( ViewModelBoneMods )
 	
 	// init view model bone build function
 	if IsValid(self.Owner) then
@@ -390,7 +397,7 @@ local hasGarryFixedBoneScalingYet = false
 
 function SWEP:UpdateBonePositions(vm)
 	
-	if self.ViewModelBoneMods then
+	if self.ViewModelBoneMods and not drawArm:GetBool() then
 		
 		if (!vm:GetBoneCount()) then return end
 		

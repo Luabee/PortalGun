@@ -1,0 +1,57 @@
+[video]http://www.youtube.com/watch?v=akIkLeaSGpg[/video]
+
+[B][U]Description:[/U][/B]
+A fully functional Portal Gun. This is by far the most eloquent and bug-free portal gun available within Garry's Mod. 
+Left click to shoot a blue portal. Right click to shoot an orange portal. Reload to remove all portals. Press E to pick up an item. 
+[B][I]TO MAKE THE PORTALS WORK RIGHT, RUN "r_novis 1" IN CONSOLE.[/I][/B]
+
+[B][U]Features:[/U][/B]
+• Portals which look exactly like the portals in Portal 1, with seamless rendering
+• Walk through portals just like the game. No more sucking or poofing!
+• Standalone, does not require Portal or Portal 2 to work correctly. 
+• Velocity is (almost) entirely preserved as you enter the portal. 
+• Optional dynamic lights 
+• Shoot through portals
+• Take props through portals
+• Several convars to adjust the portal gun to your liking (listed below).
+
+[B][U]ConVars:[/U][/B]
+• portal_arm <0|1> Whether to show the arm in the viewmodel. Requires Portal 2. (default 0)
+• portal_beta_borders <0|1> Whether to use different textures for the portals. (default 0)
+• portal_borders <0|1> Whether to render portal borders at all (default 1; 0 somewhat improves performance) 
+• portal_crosshair <0|1> Whether to use the portal crosshair (default 1) 
+• portal_dynamic_light <0|1> Whether to use dynamic lights with the portals (default 0; 0 drastically improves performance) 
+• portal_limitcarry <0|1> Whether to limit the portalgun to pick up portal props only (default 1) 
+• portal_projectile_speed <number> The speed of the projectile shot by the portal gun (default 3500) 
+• portal_render <0|1> whether to render the other side of the portal (default 1; 0 drastically improves performance)
+
+[B][U]Links:[/U][/B]
+Workshop: http://steamcommunity.com/sharedfiles/filedetails/?id=336509414
+Github: https://github.com/Luabee/PortalGun 
+
+[B][U]Known Bugs:[/U][/B]
+• Can't select the model for tools like button or thruster in sandbox 
+• Portal projectiles don't exist in multiplayer 
+• Multiplayer in general is very unreliable 
+• Props sometimes fall through the floor when they move through the portal 
+• Roof portals don't preserve velocity for players.
+
+Thanks to everyone who helped make this possible, including but not limited to:
+[B]Bobblehead [/B]- Making it actually work and look nice.
+[B]Mahalis [/B]- Some code
+[B]Fernando5567 [/B]- Much code
+[B]Matsilagi [/B]- Models/effects/testing
+[B]Dr. Awesome [/B]- Swirly beta portal materials
+
+
+
+
+
+
+
+
+
+
+
+
+http://facepunch.com/showthread.php?t=1435151&p=46404425#post46404425
