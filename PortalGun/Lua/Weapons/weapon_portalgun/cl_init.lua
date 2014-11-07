@@ -220,7 +220,7 @@ function SWEP:ViewModelDrawn(vm)
 			local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
 			local _sin = math.abs( math.sin( CurTime( ) * 1 ) ) * .3; //math.sinwave( 25, 3, true )
 			
-			col.a = sin(CurTime()*math.pi)*((128-96)/2)+112
+			col.a = math.sin(CurTime()*math.pi)*((128-96)/2)+112
 			
 			render.SetMaterial(sprite)
 			for i=0, 1, .2 do --visible in daylight.
