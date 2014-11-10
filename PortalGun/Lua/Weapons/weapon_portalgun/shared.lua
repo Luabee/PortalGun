@@ -41,7 +41,7 @@ if ( CLIENT ) then
 
 end
 
-CreateClientConVar("portal_vm",0)
+CreateClientConVar("portal_vm",1,true,true)
 
 SWEP.HoldType                   = "crossbow"
 
@@ -285,6 +285,7 @@ function SWEP:Think()
 	end
 
 	local curVM = GetConVarNumber("portal_vm")
+	if curVM == 0 then RunConsoleCommand("portal_vm", 1) end
 
 	if curVM != self.CurVM then
 		local getModelTab = PortalGunVM[curVM]
