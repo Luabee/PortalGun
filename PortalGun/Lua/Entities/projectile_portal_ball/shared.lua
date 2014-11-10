@@ -39,7 +39,6 @@ end
 function ENT:SetEffects(type)
 	self:SetNWInt("Kind", type)
 	
-	ParticleEffectAttach("portal_"..type.."_projectile_ball",PATTACH_ABSORIGIN_FOLLOW,self,1)
 	ParticleEffectAttach("portal_"..type.."_projectile_stream",PATTACH_ABSORIGIN_FOLLOW,self,1)
 	
 end

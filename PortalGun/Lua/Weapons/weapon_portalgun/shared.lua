@@ -21,10 +21,10 @@ end
 if ( CLIENT ) then
         SWEP.WepSelectIcon = surface.GetTextureID("weapons/portalgun_inventory")
         SWEP.PrintName          = "Portal Gun"
-        SWEP.Author             = "Fernando5567"
+        SWEP.Author             = "Bobblehead / Matsilagi"
         SWEP.Contact            = "Fergp1998@hotmail.com"
         SWEP.Purpose            = "Shoot Linked Portals"
-        SWEP.ViewModelFOV       = "60"
+        SWEP.ViewModelFOV       = "54"
         SWEP.Instructions       = ""
         SWEP.Slot = 0
         SWEP.Slotpos = 0
@@ -38,7 +38,10 @@ if ( CLIENT ) then
                         -- self.Weapon:DrawModel()
                 -- end
         -- end
+
 end
+
+CreateClientConVar("portal_vm",0)
 
 SWEP.HoldType                   = "crossbow"
 
@@ -126,7 +129,7 @@ local ActIndex = {}
 
 -- end
 
-// Default hold pos is the pistol
+-- Default hold pos is the pistol
 -- SWEP:SetWeaponHoldType( SWEP.HoldType )
 
 
@@ -134,7 +137,6 @@ SWEP.Category = "Aperture Science"
 
 SWEP.Spawnable                  = true
 SWEP.AdminSpawnable             = true
-
 
 SWEP.ViewModel                  = "models/weapons/portalgun/v_portalgun.mdl"
 SWEP.WorldModel                 = "models/weapons/portalgun/w_portalgun_hl2.mdl"
@@ -166,30 +168,39 @@ SWEP.RunSway = 2.0
 SWEP.HasOrangePortal = false
 SWEP.HasBluePortal = false
 
+local PortalGunVM = {}
+PortalGunVM[1] = {vm = "models/weapons/portalgun/v_portalgun.mdl", wm = "models/weapons/portalgun/w_portalgun_hl2.mdl"}
+PortalGunVM[2] = {vm = "models/weapons/portalgun/v_portalgun_def.mdl", wm = "models/weapons/portalgun/w_portalgun_hl2.mdl"}
+PortalGunVM[3] = {vm = "models/weapons/portalgun/v_portalgun_pb.mdl", wm = "models/weapons/portalgun/w_portalgun_hl2.mdl"}
+PortalGunVM[4] = {vm = "models/weapons/portalgun/v_portalgun_f22.mdl", wm = "models/weapons/portalgun/w_portalgun_hl2.mdl"}
+PortalGunVM[5] = {vm = "models/weapons/portalgun/v_portalgun_p1.mdl", wm = "models/weapons/portalgun/w_portalgun_hl2.mdl"}
+
+local GetCVN = GetConVarNumber
+
 function SWEP:Initialize()
 	if CLIENT then
 		self.Weapon:SetNetworkedInt("LastPortal",0,true)
 		self:SetWeaponHoldType( self.HoldType )
 
 
-		// Create a new table for every weapon instance
+		-- Create a new table for every weapon instance
 		self.VElements = table.FullCopy( VElements )
 		self.WElements = table.FullCopy( WElements )
 		
-		// init view model bone build function
+		-- init view model bone build function
 		if IsValid(self.Owner) then
 			local vm = self.Owner:GetViewModel()
 			if IsValid(vm) then
 				self:ResetBonePositions(vm)
 				
-				// Init viewmodel visibility
+				-- Init viewmodel visibility
 				if (self.ShowViewModel == nil or self.ShowViewModel) then
 					vm:SetColor(Color(255,255,255,255))
 				else
-					// we set the alpha to 1 instead of 0 because else ViewModelDrawn stops being called
+					-- we set the alpha to 1 instead of 0 because else ViewModelDrawn stops being called
 					vm:SetColor(Color(255,255,255,1))
-					// ^ stopped working in GMod 13 because you have to do Entity:SetRenderMode(1) for translucency to kick in
-					// however for some reason the view model resets to render mode 0 every frame so we just apply a debug material to prevent it from drawing
+					-- ^ stopped working in GMod 13 because you have to do Entity:SetRenderMode(1) for translucency to kick in
+					-- however for some reason the view model resets to render mode 0 every frame so we just apply a debug material to prevent it from drawing
 					vm:SetMaterial("Debug/hsv")			
 				end
 			end
@@ -233,7 +244,7 @@ end)
 
 function SWEP:Think()
 	
-	-- // HOLDING FUNC
+	-- -- HOLDING FUNC
 	
 	if SERVER then
 		if IsValid(self.HoldenProp) and (!self.HoldenProp:IsPlayerHolding() or self.HoldenProp.Holder != self.Owner) then
@@ -253,7 +264,7 @@ function SWEP:Think()
 					filter = ply
 				} )
 					
-				//PICKUP FUNC
+				--PICKUP FUNC
 				if IsValid( tr.Entity ) then
 					if tr.Entity.isClone then tr.Entity = tr.Entity.daddyEnt end
 					local entsize = ( tr.Entity:OBBMaxs() - tr.Entity:OBBMins() ):Length() / 2
@@ -266,13 +277,24 @@ function SWEP:Think()
 					end
 				end
 				
-				//PICKUP THROUGH PORTAL FUNC
+				--PICKUP THROUGH PORTAL FUNC
 				--TODO
 				
 			end
 		end
 	end
-	
+
+	local curVM = GetConVarNumber("portal_vm")
+
+	if curVM != self.CurVM then
+		local getModelTab = PortalGunVM[curVM]
+		self.Owner:GetViewModel():SetModel(getModelTab.vm)
+		self.WorldModel = getModelTab.wm
+	end
+
+
+	self.CurVM = curVM
+
 	if CLIENT and self.EnableIdle then return end
 	if self.idledelay and CurTime() > self.idledelay then
 		self.idledelay = nil
@@ -285,7 +307,7 @@ function SWEP:PickupProp( ent )
 	if !limitPickups:GetBool() or ( table.HasValue( pickable, ent:GetModel() ) or table.HasValue( pickable, ent:GetClass() ) )then
 		if self.Owner:GetGroundEntity() == ent then return false end
 		
-		//Take it from other players.
+		--Take it from other players.
 		if ent:IsPlayerHolding() and ent.Holder and ent.Holder:IsValid() then
 			ent.Holder:GetActiveWeapon():OnDroppedProp()
 		end
@@ -293,13 +315,13 @@ function SWEP:PickupProp( ent )
 		self.HoldenProp = ent
 		ent.Holder = self.Owner
 		
-		//Rotate it first
+		--Rotate it first
 		local angOffset = hook.Call("GetPreferredCarryAngles",GAMEMODE,ent) 
 		if angOffset then
 			ent:SetAngles(self.Owner:EyeAngles() + angOffset)
 		end
 		
-		//Pick it up.
+		--Pick it up.
 		self.Owner:PickupObject(ent)
 		
 		self:SendWeaponAnim( ACT_VM_DEPLOY )
@@ -520,15 +542,15 @@ function SWEP:ShootPortal( type )
 	if IsFirstTimePredicted() and owner:IsValid() then --Predict that motha' fucka'
 			
 		if SERVER then
-			//shoot a ball.
+			--shoot a ball.
 			local ball = self:ShootBall(type,tr.start,tr.endpos,trace.Normal)
 			
 			if ( trace.Hit and trace.HitWorld ) then
 		
 				local validpos, validnormang = self:IsPosionValid( trace.HitPos, trace.HitNormal, 2, true )
 			   
-				if !trace.HitNoDraw and !trace.HitSky and ( trace.MatType != MAT_METAL or ( trace.MatType == MAT_CONCRETE or trace.MatType == MAT_DIRT ) ) and validpos and validnormang then
-					  //Wait until our ball lands, if it's enabled.
+				if !trace.HitNoDraw and !trace.HitSky and ( trace.MatType != MAT_METAL and trace.MatType != MAT_GLASS or ( trace.MatType == MAT_CONCRETE or trace.MatType == MAT_DIRT ) ) and validpos and validnormang then
+					  --Wait until our ball lands, if it's enabled.
 					  hitDelay = ((trace.Fraction * 2048 * 1000)-100)/ballSpeed:GetInt()
 					  
 					  self:SetNextPrimaryFire(math.max(CurTime()+hitDelay+.2, CurTime() + self.Delay))
@@ -677,7 +699,7 @@ function SWEP:Reload()
 end
 
 function SWEP:Deploy()
-       
+
         self.Weapon:SendWeaponAnim( ACT_VM_DEPLOY )
 		self:CheckExisting() 
 		self:IdleStuff()

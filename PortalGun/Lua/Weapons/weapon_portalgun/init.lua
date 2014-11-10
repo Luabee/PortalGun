@@ -8,6 +8,7 @@ SWEP.AutoSwitchTo		= true		// Auto switch to if we pick it up
 SWEP.AutoSwitchFrom		= true		// Auto switch from if you pick up a better weapon
 
 
+
 /*---------------------------------------------------------
    Name: weapon:TranslateActivity( )
    Desc: Translate a player's Activity into a weapon's activity

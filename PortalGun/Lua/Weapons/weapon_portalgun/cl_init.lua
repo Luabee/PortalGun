@@ -4,17 +4,23 @@ local reticle = CreateClientConVar("portal_crosshair","1",true,false)
 local drawArm = CreateClientConVar("portal_arm","0",true,false)
 
 local VElements = {
-	["BodyLight"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Base", rel = "", pos = Vector(0.25, -5.45, 10.5), size = { x = 1, y = 1 }, color = Color(255, 255, 255, 255), nocull = true, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
-	["BeamPoint1"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Front_Cover", rel = "", pos = Vector(-0.101, -2.401, -3.1), size = { x = 2, y = 2 }, color = Color(255, 255, 255, 255), nocull = true, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
-	["BeamPoint2"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Front_Cover", rel = "", pos = Vector(-0.01, -2.391, -3.401), size = { x = 2, y = 2 }, color = Color(255, 255, 255, 255), nocull = true, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
-	["BeamPoint3"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Front_Cover", rel = "", pos = Vector(-0.03, -2.381, -3.701), size = { x = 2, y = 2 }, color = Color(255, 255, 255, 255), nocull = true, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
-	["BeamPoint4"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Front_Cover", rel = "", pos = Vector(-0.04, -2.36, -4), size = { x = 2, y = 2 }, color = Color(255, 255, 255, 255), nocull = true, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
-	["BeamPoint5"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Front_Cover", rel = "", pos = Vector(-0.051, -2.35, -4.301), size = { x = 2, y = 2 }, color = Color(255, 255, 255, 255), nocull = true, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
-	["InsideEffects"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Front_Cover", rel = "", pos = Vector(0, -2.201, 0), size = { x = 2, y = 2 }, color = Color(255, 255, 255, 255), nocull = true, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false}
+	["BodyLight"] = { type = "Sprite", sprite = "sprites/portalgun_light", bone = "ValveBiped.Base", rel = "", pos = Vector(0.25, -5.45, 10.5), size = { x = 0.018, y = 0.018 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
+	["BodyLight1"] = { type = "Sprite", sprite = "sprites/portalgun_light", bone = "ValveBiped.Base", rel = "", pos = Vector(0.25, -5.45, 10.5), size = { x = 0.018, y = 0.018 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
+	["BodyLight2"] = { type = "Sprite", sprite = "sprites/portalgun_light", bone = "ValveBiped.Base", rel = "", pos = Vector(0.25, -5.45, 10.5), size = { x = 0.018, y = 0.018 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
+	["BodyLight3"] = { type = "Sprite", sprite = "sprites/portalgun_light", bone = "ValveBiped.Base", rel = "", pos = Vector(0.25, -5.45, 10.5), size = { x = 0.018, y = 0.018 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
+	["BodyLight4"] = { type = "Sprite", sprite = "sprites/portalgun_light", bone = "ValveBiped.Base", rel = "", pos = Vector(0.25, -5.45, 10.5), size = { x = 0.018, y = 0.018 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
+	["BodyLight4"] = { type = "Sprite", sprite = "sprites/portalgun_light", bone = "ValveBiped.Base", rel = "", pos = Vector(0.25, -5.45, 10.5), size = { x = 0.018, y = 0.018 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
+	["BodyLight5"] = { type = "Sprite", sprite = "sprites/portalgun_light", bone = "ValveBiped.Base", rel = "", pos = Vector(0.25, -5.45, 10.5), size = { x = 0.018, y = 0.018 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
+	["BeamPoint1"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Front_Cover", rel = "", pos = Vector(-0.101, -2.401, -3.1), size = { x = 0.04, y = 0.04 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
+	["BeamPoint2"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Front_Cover", rel = "", pos = Vector(-0.01, -2.391, -3.401), size = { x = 0.04, y = 0.04 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
+	["BeamPoint3"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Front_Cover", rel = "", pos = Vector(-0.03, -2.381, -3.701), size = { x = 0.04, y = 0.04 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
+	["BeamPoint4"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Front_Cover", rel = "", pos = Vector(-0.04, -2.36, -4), size = { x = 0.04, y = 0.04 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
+	["BeamPoint5"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Front_Cover", rel = "", pos = Vector(-0.051, -2.35, -4.301), size = { x = 0.04, y = 0.04 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false},
+	["InsideEffects"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Front_Cover", rel = "", pos = Vector(0, -2.201, 0), size = { x = 0.04, y = 0.04 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false}
 }
 
 local WElements = {
-	["BodyLight"] = { type = "Sprite", sprite = "sprites/portalgun_effects", bone = "ValveBiped.Bip01_R_Hand", rel = "", pos = Vector(7, 1.40, -4.801), size = { x = 2.8, y = 2.8 }, color = Color(255, 255, 255, 255), nocull = true, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false}
+	["BodyLight"] = { type = "Sprite", sprite = "sprites/portalgun_light", bone = "ValveBiped.Bip01_R_Hand", rel = "", pos = Vector(7, 1.40, -4.801), size = { x = 0.03, y = 0.03 }, color = Color(255, 255, 255, 255), nocull = false, additive = true, vertexalpha = true, vertexcolor = true, ignorez = false}
 }
 
 local ViewModelBoneMods = {
@@ -104,11 +110,11 @@ net.Receive( 'PORTALGUN_PICKUP_PROP', function()
 	self.HoldenProp = ent
 end )
 
-local GravityLight,GravityBeam = Material("sprites/portalgunsprites/grav_flare"),Material("sprites/portalgunsprites/grav_beam.png","unlitgeneric")
+local GravityLight,GravityBeam = Material("sprites/grav_flare"),Material("sprites/portalgunsprites/grav_beam.png","unlitgeneric")
 local GravitySprites = {
-	{bone = "ValveBiped.Arm1_C", pos = Vector(-1, -0.1, 0.8), size = { x = 2.5, y = 2.5 }},
-	{bone = "ValveBiped.Arm2_C", pos = Vector(0, 1.2, 1), size = { x = 2.5, y = 2.5 }},
-	{bone = "ValveBiped.Arm3_C", pos = Vector(0, 1.2, 1), size = { x = 2.5, y = 2.5 }}
+	{bone = "ValveBiped.Arm1_C", pos = Vector(-1.25 , 0.10, 1.06), size = { x = 0.02, y = 0.02 }},
+	{bone = "ValveBiped.Arm2_C", pos = Vector(0.10, 1.25, 1.00), size = { x = 0.02, y = 0.02 }},
+	{bone = "ValveBiped.Arm3_C", pos = Vector(-0.10, -1.25, 1.05), size = { x = 0.02, y = 0.02 }}
 }
 function SWEP:DrawPickupEffects(ent)
 	
@@ -132,13 +138,13 @@ function SWEP:DrawPickupEffects(ent)
 			
 		if (!pos) then continue end
 		
-		local col = Color(255, 255, 255, 100)
+		local col = Color(255, 255, 255, math.Rand(96,128))
 		local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
-		local _sin = math.abs( math.sin( CurTime( ) * 1 ) ) * 1; //math.sinwave( 25, 3, true )
+		local _sin = math.abs( math.sin( CurTime() * ( 0.1 ) * math.Rand(1,3))); //math.sinwave( 25, 3, true )
 		
 		render.SetMaterial(GravityLight)
 		for i=0, 1, .4 do --visible in daylight.
-			render.DrawSprite(drawpos, v.size.x+_sin+i, v.size.y+_sin+i, col)
+			render.DrawSprite(drawpos, v.size.x*128+_sin, v.size.y*128+_sin, col)
 		end
 		
 		lightOrigins[k] = drawpos
@@ -149,7 +155,7 @@ function SWEP:DrawPickupEffects(ent)
 	//Draw the beams and center sprite.
 	local bone = ent:GetBoneMatrix(ent:LookupBone("ValveBiped.Front_Cover")) 
 	local endpos,ang = bone:GetTranslation(),bone:GetAngles()
-	local _sin = math.abs( math.sin( 1+CurTime( ) * 1 ) ) * 1
+	local _sin = math.abs( math.sin( 1+CurTime( ) * 3 ) ) * 1
 	endpos = endpos + ang:Up()*6 + ang:Right()*-1.8
 	
 	for i=0, 1, .4 do --visible in daylight.
@@ -195,7 +201,47 @@ hook.Add("HUDPaint", "View model pickup override", function(vm)
 	end
 end)
 
+local VGravityLight = Material("sprites/glow04_noz")
+
+local VGravitySprites = {
+	{bone = "ValveBiped.Arm1_A", pos = Vector(0, 0, 0), size = { x = 0.018, y = 0.018 }},
+	{bone = "ValveBiped.Arm2_A", pos = Vector(0, 0, 0), size = { x = 0.018, y = 0.018 }},
+	{bone = "ValveBiped.Arm3_A", pos = Vector(0, 0, 0.30), size = { x = 0.018, y = 0.018 }},
+	{bone = "ValveBiped.Arm1_B", pos = Vector(0, 0, 0), size = { x = 0.018, y = 0.018 }},
+	{bone = "ValveBiped.Arm2_B", pos = Vector(0, 0.20, -0.10), size = { x = 0.018, y = 0.018 }},
+	{bone = "ValveBiped.Arm3_B", pos = Vector(-0.10, 0.30, -0.10), size = { x = 0.018, y = 0.018 }},	
+}
+
 function SWEP:ViewModelDrawn(vm)
+
+	//Draw the lights
+	local lightOrigins = {}
+	for k,v in pairs(VGravitySprites) do
+		local bone = vm:LookupBone(v.bone)
+
+		if (!bone) then return end
+		
+		local pos, ang = Vector(0,0,0), Angle(0,0,0)
+		local m = vm:GetBoneMatrix(bone)
+		if (m) then
+			pos, ang = m:GetTranslation(), m:GetAngles()
+		end
+		
+		if (IsValid(self.Owner) and self.Owner:IsPlayer() and 
+			vm == self.Owner:GetViewModel() and self.ViewModelFlip) then
+			ang.r = -ang.r // Fixes mirrored models
+		end
+			
+		if (!pos) then continue end
+		
+		local col = Color(255, 128, 0, math.Rand(10,24))
+		local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
+		local _sin = math.abs( math.sin( CurTime() * ( 0.1 ) * math.Rand(0.0075,0.05 )))
+
+		render.SetMaterial(VGravityLight)
+		render.DrawSprite(drawpos, v.size.x*128+_sin, v.size.y*128+_sin, col)
+		end
+		
 	if (!self.VElements) then return end
 	self:UpdateBonePositions(vm)
 
@@ -216,22 +262,17 @@ function SWEP:ViewModelDrawn(vm)
 		
 		if (v.type == "Sprite" and sprite) then
 			local last =  self:GetNetworkedInt("LastPortal",0)
-			local col = last == TYPE_BLUE and Color(0, 87, 255) or (last == TYPE_ORANGE and Color(255, 130, 20) or Color(255, 255, 255, 100))
+			local col = last == TYPE_BLUE and Color(64, 160, 255, 255) or (last == TYPE_ORANGE and Color(255, 160, 32, 255) or Color(255, 255, 255, 255) )
 			local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
 			local _sin = math.abs( math.sin( CurTime( ) * 1 ) ) * .3; //math.sinwave( 25, 3, true )
-			
 			col.a = math.sin(CurTime()*math.pi)*((128-96)/2)+112
-			
 			render.SetMaterial(sprite)
-			for i=0, 1, .2 do --visible in daylight.
-				render.DrawSprite(drawpos, v.size.x+_sin+i, v.size.y+_sin+i, col)
+			render.DrawSprite(drawpos, v.size.x*128.0, v.size.y*128.0, col)
 			end
 			
 		end
 		
 	end
-	
-end
 
 SWEP.wRenderOrder = nil
 function SWEP:DrawWorldModel()
@@ -334,7 +375,7 @@ function SWEP:DrawWorldModel()
 			local col = last == TYPE_BLUE and Color(64, 160, 255) or (last == TYPE_ORANGE and Color(255, 160, 32) or Color(255, 255, 255, 100))
 			render.SetMaterial(sprite)
 			for i=0, 1, .2 do --visible in daylight.
-			render.DrawSprite(drawpos, v.size.x, v.size.y, col)
+			render.DrawSprite(drawpos, v.size.x*128, v.size.y*128, col)
 			end
 			
 		elseif (v.type == "Quad" and v.draw_func) then
@@ -584,7 +625,7 @@ function SWEP:DrawHUD()
 	
 	local cRit = (self:GetNetworkedBool("OnlyBlue") and cBlu or cOrg)
 	//TODO: Add option for material exclusivity
-	local validMat = trc.MatType == 67 or trc.MatType == 68
+	local validMat = trc.MatType != 77 and trc.MatType != 88 and trc.MatType != 89
 	local validBlu = true
 	local validRed = true
 	local hEnt = LocalPlayer():GetEyeTrace().Entity
