@@ -526,10 +526,12 @@ usermessage.Hook("DebugOverlay_Cross", function(umsg)
 end)
 
 hook.Add("Think", "Reset Camera Roll", function()
-	local a = LocalPlayer():EyeAngles()
-	if a.r != 0 then
-		a.r = math.ApproachAngle(a.r, 0, FrameTime()*160)
-		LocalPlayer():SetEyeAngles(a)
+	if not LocalPlayer():InVehicle() then
+		local a = LocalPlayer():EyeAngles()
+		if a.r != 0 then
+			a.r = math.ApproachAngle(a.r, 0, FrameTime()*160)
+			LocalPlayer():SetEyeAngles(a)
+		end
 	end
 end) 
 
