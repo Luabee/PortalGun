@@ -100,7 +100,7 @@ function ipMove( ply, mv )
 			-- print("booting player.")
 			-- ply.InPortal = nil
 			-- ply:SetMoveType(MOVETYPE_WALK)
-			-- ply:EmitSound("player/portal_exit".. portal.PortalType ..".wav",80,100 + (30 * (mv:GetVelocity():Length() - 100)/1000))
+			-- ply:EmitSound("weapons/portalgun/portal_exit".. portal.PortalType ..".wav",80,100 + (30 * (mv:GetVelocity():Length() - 100)/1000))
 			-- return false
 		-- end
 		
@@ -212,7 +212,7 @@ function ipMove( ply, mv )
 		else
 			ply.InPortal = nil
 			ply:SetMoveType(MOVETYPE_WALK)
-			-- ply:EmitSound("player/portal_exit".. portal.PortalType ..".wav",80,100 + (30 * (newVelocity:Length() - 100)/1000))
+			-- ply:EmitSound("weapons/portalgun/portal_exit".. portal.PortalType ..".wav",80,100 + (30 * (newVelocity:Length() - 100)/1000))
 		end
 		
 		local newOrigin = portal:LocalToWorld(localOrigin)

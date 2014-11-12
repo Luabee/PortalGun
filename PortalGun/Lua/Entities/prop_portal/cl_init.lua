@@ -333,8 +333,8 @@ function ENT:RenderPortal( origin, angles)
 			local LocalAngles = self:WorldToLocalAngles( angles )
 		   
 			// repair
-			if self:OnFloor() then
-				LocalOrigin.x = LocalOrigin.x+20
+			if self:OnFloor() and not portal:OnFloor() then
+				LocalOrigin.x = LocalOrigin.x + 20
 			end
 			LocalOrigin.y = -LocalOrigin.y
 			LocalAngles.y = -LocalAngles.y
@@ -402,7 +402,7 @@ hook.Add( "RenderScene", "Portal.RenderScene", function( Origin, Angles )
 end )
 CreateClientConVar("portal_debugmonitor", 0, false, false)
 hook.Add( "HUDPaint", "Portal.BlueMonitor", function( w,h )
-	if GetConVarNumber("portal_debugmonitor") == 1 then
+	if GetConVarNumber("portal_debugmonitor") == 1 and GetConVarNumber("sv_cheats") == 1 then
 		// render each portal
 		for k, v in ipairs( ents.FindByClass( "prop_portal" ) ) do
 		  // debug monitor
