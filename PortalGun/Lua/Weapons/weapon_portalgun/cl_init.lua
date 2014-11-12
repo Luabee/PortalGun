@@ -110,7 +110,7 @@ net.Receive( 'PORTALGUN_PICKUP_PROP', function()
 	self.HoldenProp = ent
 end )
 
-local GravityLight,GravityBeam = Material("sprites/grav_flare"),Material("sprites/portalgunsprites/grav_beam.png","unlitgeneric")
+local GravityLight,GravityBeam = Material("sprites/portalgunsprites/grav_flare"),Material("sprites/portalgunsprites/grav_beam.png","unlitgeneric")
 local GravitySprites = {
 	{bone = "ValveBiped.Arm1_C", pos = Vector(-1.25 , 0.10, 1.06), size = { x = 0.02, y = 0.02 }},
 	{bone = "ValveBiped.Arm2_C", pos = Vector(0.10, 1.25, 1.00), size = { x = 0.02, y = 0.02 }},
