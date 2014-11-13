@@ -535,17 +535,17 @@ hook.Add("Think", "Reset Camera Roll", function()
 	end
 end) 
 
-local fps = {30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30}
-function AvgFPS()
-	table.remove(fps,1)
-	table.insert(fps,1/FrameTime())
-	local avg = 0
-	for i=1,#fps do
-		avg = avg+fps[i]
-	end
-	return avg/#fps
-end
-hook.Add("Tick","Calc AVG FPS",AvgFPS)
+-- local fps = {30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30}
+-- function AvgFPS()
+	-- table.remove(fps,1)
+	-- table.insert(fps,1/FrameTime())
+	-- local avg = 0
+	-- for i=1,#fps do
+		-- avg = avg+fps[i]
+	-- end
+	-- return avg/#fps
+-- end
+-- hook.Add("Tick","Calc AVG FPS",AvgFPS)
 
 -- hook.Add("HUDPaint","PrintVelocity", function() 
 	
