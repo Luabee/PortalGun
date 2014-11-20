@@ -307,7 +307,7 @@ if SERVER then
 	hook.Add("DoPlayerDeath", "Remove Portals On Death", function(victim)
 		local blueportal = victim:GetNWEntity( "Portal:Blue" )
         local orangeportal = victim:GetNWEntity( "Portal:Orange" )
-       
+		victim.InPortal = nil
         for k,v in ipairs( ents.FindByClass( "prop_portal" ) ) do
    
 			if v == blueportal or v == orangeportal and v.CleanMeUp then
