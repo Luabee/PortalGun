@@ -1,8 +1,0 @@
-particles_manifest
-{
-	"file"		"particles/portalgun.pcf"
-	"file"		"particles/portal_projectile.pcf"
-	"file"		"particles/wip_muzzle.pcf"
-	"file"		"particles/portals.pcf"	
-	"file"		"particles/cleansers.pcf"	
-}

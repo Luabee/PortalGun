@@ -1,0 +1,17 @@
+"UnlitGeneric"
+{
+	"$BaseTexture" "sprites/n0red"
+	"$selfillum" "1"
+	"$translucent" "1"
+	"$frame" "0"
+	
+	"Proxies"
+	{
+		"AnimatedTexture"
+		{
+			"animatedTextureVar" "$basetexture"
+			"animatedTextureFrameNumVar" "$frame"
+			"animatedTextureFrameRate" "90"
+		}
+	}
+}
