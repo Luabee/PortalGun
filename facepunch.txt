@@ -38,6 +38,7 @@ Github: https://github.com/Luabee/PortalGun
 
 Thanks to everyone who helped make this possible, including but not limited to:
 [B]Bobblehead [/B]- Making it actually work and look nice.
+[B]Blackops [/B]- Much Code and models.
 [B]Mahalis [/B]- Some code
 [B]Fernando5567 [/B]- Much code
 [B]Matsilagi [/B]- Models/effects/testing

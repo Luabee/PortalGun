@@ -317,3 +317,12 @@ if SERVER then
         end
 	end)
 end
+
+//Fix collision prediction at high speed:
+hook.Add("Initialize","Fix Collison Prediction", function()
+	timer.Simple(1,function()
+		local tbl = physenv.GetPerformanceSettings()
+		tbl.LookAheadTimeObjectsVsObject = .7
+		physenv.SetPerformanceSettings(tbl)
+	end)
+end)
