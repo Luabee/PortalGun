@@ -56,7 +56,7 @@ local SwayDelta = Angle()
 SWEP.DrawWeaponInfoBox	= false					// Should draw the weapon info box
 SWEP.BounceWeaponIcon   = false					// Should the weapon icon bounce?
 
-SWEP.WepSelectFont		= "TitleFont"
+SWEP.WepSelectFont		= "HL2MPTypeDeath"
 SWEP.WepSelectLetter	= "C"
 
 /*---------------------------------------------------------
@@ -671,7 +671,7 @@ local cOrgB = Color(218,64,120,255)
 surface.CreateFont( "xhair", 
                     {
                     font    = "HL2Cross",
-                    size    = 63,
+                    size    = 62,
                     weight  = 400,
                     antialias = true,
                     shadow = false
@@ -743,4 +743,5 @@ function SWEP:DrawHUD()
 		surface.SetDrawColor(cOrg)
 		surface.DrawTexturedRect(cX+rightpos.x+30, cY+rightpos.y-(sizeSmall.h/2)+sizeLarge.h, sizeSmall.w, sizeSmall.h)
 	end
+end
 end
