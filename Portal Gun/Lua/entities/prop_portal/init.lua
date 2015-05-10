@@ -392,7 +392,7 @@ function ENT:PlayerEnterPortal(ent)
 	-- print("noclipping")
 
 	if ent.JustEntered then
-		ent:EmitSound("player/portal_enter".. self.PortalType ..".wav",80,100 + (30 * (ent:GetVelocity():Length() - 100)/1000))
+		ent:EmitSound("weapons/portalgun/portal_enter".. self.PortalType ..".wav",80,100 + (30 * (ent:GetVelocity():Length() - 100)/1000))
 		ent.JustEntered = false
 	end
 end
@@ -479,7 +479,7 @@ function ENT:DoPort(ent) --Shared so we can predict it.
 			ent.InPortal = nil
 			ent:SetMoveType(MOVETYPE_WALK)
 			if SERVER then
-				ent:EmitSound("player/portal_exit".. self.PortalType ..".wav",80,100 + (30 * (nuVel:Length() - 100)/1000))
+				ent:EmitSound("weapons/portalgun/portal_exit".. self.PortalType ..".wav",80,100 + (30 * (nuVel:Length() - 100)/1000))
 			end
 			--print("Walking")
 		end

@@ -707,13 +707,13 @@ function SWEP:DrawHUD()
 	if GetConVarNumber("portal_beta_borders") >=1 then
 	local bBrack = (validMat && validBlu) and "[" or "{"
 	local rBrack = (validMat && validRed) and "]" or "}"
-	draw.SimpleText(bBrack,"xhair",cXF-24,cYF,cBlu,2,1)
-	draw.SimpleText(rBrack,"xhair",cXF+25,cYF,cRit,0,1)
+	draw.SimpleText(bBrack,"xhair",cX-24,cY,cBlu,2,1)
+	draw.SimpleText(rBrack,"xhair",cX+25,cY,cRit,0,1)
 	local lastPort = self:GetNetworkedInt("LastPortal",0)
 	bBrack = (lastPort == TYPE_BLUE) and "[" or "{"
 	rBrack = (lastPort == TYPE_ORANGE) and "]" or "}"
-	draw.SimpleText(bBrack,"xhair",cXF-37,cYF,cBlu,2,1)
-	draw.SimpleText(rBrack,"xhair",cXF+38,cYF,cRit,0,1)
+	draw.SimpleText(bBrack,"xhair",cX-37,cY,cBlu,2,1)
+	draw.SimpleText(rBrack,"xhair",cX+38,cY,cRit,0,1)
 	
 	else
 	
