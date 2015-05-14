@@ -104,6 +104,8 @@ function ENT:BootPlayer()
 			p:SetPos(self:GetPos() + self:GetForward()*25 + self:GetUp()*-40)
 			
 			p.InPortal = false
+			p.PortalClone:Remove()
+			p.PortalClone = nil
 			p:SetMoveType(MOVETYPE_WALK)
 			umsg.Start( "Portal:ObjectLeftPortal" )
 			umsg.Entity( p )
@@ -153,6 +155,11 @@ end
 
 function ENT:MoveToNewPos(pos,newang) --Called by the swep, used if a player already has a portal out.
 	
+	self:BootPlayer()
+	if IsValid(self:GetOther()) then
+		self:GetOther():BootPlayer()
+	end
+	
 	local ang = self:GetAngles()
 	ang:RotateAroundAxis(ang:Right(),-90)
 	ang:RotateAroundAxis(ang:Forward(),0)
@@ -177,11 +184,6 @@ function ENT:MoveToNewPos(pos,newang) --Called by the swep, used if a player alr
 		ParticleEffect("portal_2_close",effectpos,ang,nil)
 	end
 	
-	self:BootPlayer()
-	if IsValid(self:GetOther()) then
-		self:GetOther():BootPlayer()
-	end
-	
 	self:SetPos( pos )
 	
 	if IsValid( self.Sides ) then
@@ -203,13 +205,6 @@ function ENT:MoveToNewPos(pos,newang) --Called by the swep, used if a player alr
 	
 end
 
-function ENT:GetOpposite() --Don't think this is being used..? Gets the portal type that it would need to be linked too
-	if self.PortalType == TYPE_BLUE then
-		return TYPE_ORANGE
-	elseif self.PortalType == TYPE_ORANGE then
-		return TYPE_BLUE
-	end
-end
 
 function ENT:SuccessEffect()
 
@@ -314,7 +309,14 @@ function ENT:StartTouch(ent)
 	if ent.InPortal then return end
 	
 	
-	if self:CanPort(ent) and !ent:IsPlayer() then
+	if ent:IsPlayer() then
+		
+		if not self:PlayerWithinBounds(ent) then return end
+		
+		ent.JustEntered = true
+		self:PlayerEnterPortal(ent)
+		
+	elseif self:CanPort(ent) then
 		if ent:GetModel() != "models/blackops/portal_sides.mdl" and (ent:GetClass() == "prop_physics" or ent:GetClass() == "prop_physics_multiplayer" or ent:GetClass() == "npc_portal_turret_floor" or ent:GetClass() == "npc_security_camera" ) then
 			if ent:GetClass() == "npc_security_camera" then
 				ent:SetModel("models/props/Security_Camera_prop_reference.mdl")
@@ -333,12 +335,6 @@ function ENT:StartTouch(ent)
 		ent.InPortal = self
 		constraint.AdvBallsocket( ent, game.GetWorld(), 0, 0, Vector(0,0,0), Vector(0,0,0), 0, 0,  -180, -180, -180, 180, 180, 180,  0, 0, 0, 1, 1 )
 		self:MakeClone(ent)
-	elseif ent:IsPlayer() then
-		
-		if not self:PlayerWithinBounds(ent) then return end
-		
-		ent.JustEntered = true
-		self:PlayerEnterPortal(ent)
 	end
 end
 
@@ -384,6 +380,8 @@ function ENT:PlayerEnterPortal(ent)
 	umsg.End()
 	ent.InPortal = self
 	
+	self:SetupPlayerClone(ent)
+	
 	ent:GetPhysicsObject():EnableDrag(false)
 	
 	local vel = ent:GetVelocity()
@@ -395,6 +393,20 @@ function ENT:PlayerEnterPortal(ent)
 		ent:EmitSound("weapons/portalgun/portal_enter".. self.PortalType ..".wav",80,100 + (30 * (ent:GetVelocity():Length() - 100)/1000))
 		ent.JustEntered = false
 	end
+end
+
+function ENT:SetupPlayerClone(ply)
+	if not ply.PortalClone then
+		local ed = ents.Create("PortalPlayerClone")
+		ed:SetEnt(ply)
+		ed:SetPortal(self)
+		ed:SetModel(ply:GetModel())
+		ed:Spawn()
+		ply.PortalClone = ed
+	else
+		ply.PortalClone:SetPortal(self)
+	end
+	
 end
 
 function ENT:EndTouch(ent)
@@ -481,6 +493,8 @@ function ENT:DoPort(ent) --Shared so we can predict it.
 			if SERVER then
 				ent:EmitSound("weapons/portalgun/portal_exit".. self.PortalType ..".wav",80,100 + (30 * (nuVel:Length() - 100)/1000))
 			end
+			ent.PortalClone:Remove()
+			ent.PortalClone = nil
 			--print("Walking")
 		end
 	end
@@ -695,3 +709,14 @@ concommand.Add("CreateParticles", function(p,c,a)
 	ang:RotateAroundAxis(p:GetForward(),90)
 	ParticleEffect(name,p:EyePos()+p:GetForward()*100,ang, (a[2] == 1 and self or nil))
 end)
+
+function ENT:OnRemove()
+	for k,v in pairs(ents.GetAll())do
+		if v.InPortal == self then
+			umsg.Start( "Portal:ObjectLeftPortal" )
+			umsg.Entity( ent )
+			umsg.End()
+			v.InPortal = false
+		end
+	end
+end

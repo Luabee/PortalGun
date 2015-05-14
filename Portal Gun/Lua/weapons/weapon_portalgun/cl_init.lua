@@ -705,6 +705,8 @@ function SWEP:DrawHUD()
 	end
 	
 	if GetConVarNumber("portal_beta_borders") >=1 then
+	cX = cX + 29
+	cY = cY + 36
 	local bBrack = (validMat && validBlu) and "[" or "{"
 	local rBrack = (validMat && validRed) and "]" or "}"
 	draw.SimpleText(bBrack,"xhair",cX-24,cY,cBlu,2,1)

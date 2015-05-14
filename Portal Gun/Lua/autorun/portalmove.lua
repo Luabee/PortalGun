@@ -209,6 +209,9 @@ function ipMove( ply, mv )
 			localOrigin.z = math.Clamp(localOrigin.z,minZ,maxZ)
 			localOrigin.y = math.Clamp(localOrigin.y,minY,maxY)
 		else
+		
+			ply.PortalClone:Remove()
+			ply.PortalClone = nil
 			ply.InPortal = nil
 			ply:SetMoveType(MOVETYPE_WALK)
 			-- ply:EmitSound("player/portal_exit".. portal.PortalType ..".wav",80,100 + (30 * (newVelocity:Length() - 100)/1000))

@@ -4,10 +4,10 @@ TYPE_ORANGE = 2
 ENT.Type = "anim";
 
 ENT.PrintName = "Portal";
-ENT.Author = "Fernando5567";
+ENT.Author = "Bobblehead";
 ENT.Contact = "";
-ENT.Purpose = "un portal?";
-ENT.Instructions = "Spawn portals. Look through portals.";
+ENT.Purpose = "A portal";
+ENT.Instructions = "Spawn portals. Look through portals. Enter portals!";
 
 ENT.RenderGroup = RENDERGROUP_BOTH
 
@@ -23,8 +23,8 @@ function Plymeta:SetHeadPos(v)
 	self:SetPos(v)
 end
 function Plymeta:GetHeadPos(v)
-	local r = self:GetPos(v)
-	r.z = r.z+64
+	-- local r = self:GetPos(v)
+	-- r.z = r.z+64
 	return self:EyePos()
 end
 
@@ -237,6 +237,14 @@ function ENT:GetFloorOffset(pos1)
 		end
 	end
 	return offset
+end
+
+function ENT:GetOpposite() --Don't think this is being used..? Gets the portal type that it would need to be linked too
+	if self.PortalType == TYPE_BLUE then
+		return TYPE_ORANGE
+	elseif self.PortalType == TYPE_ORANGE then
+		return TYPE_BLUE
+	end
 end
 
 function ENT:IsHorizontal()

@@ -238,6 +238,7 @@ function ENT:Draw()
 	self:SetModelScale( self.openpercent,0 )
 	self:DrawModel()
 	self:SetColor(Color(255,255,255,0))
+	
 end
 function ENT:DrawPortal()
 	local viewent = GetViewEntity()
@@ -381,14 +382,25 @@ function ENT:RenderPortal( origin, angles)
 	end
 end
 
+
 /*------------------------------------
         ShouldDrawLocalPlayer()
 ------------------------------------*/
 --Draw yourself into the portal.. YES YOU CAN SEE YOURSELF! (Bug? Can't see your weapons)
 hook.Add( "ShouldDrawLocalPlayer", "Portal.ShouldDrawLocalPlayer", function()
+		local ply = LocalPlayer()
+		local portal = ply.InPortal
         if RENDERING_PORTAL then
 			return true
-        end
+        -- elseif IsValid(portal) then
+			-- local pos,ang = portal:GetPortalPosOffsets(portal:GetOther(),ply), portal:GetPortalAngleOffsets(portal:GetOther(),ply)
+			-- pos.z = pos.z - 64
+			
+			-- ply:SetRenderOrigin(pos)
+			-- ply:SetRenderAngles(ang)
+			-- return true
+			
+		end
 end )
 hook.Add( 'PostDrawEffects', 'PortalSimulation_PlayerRenderFix', function()
 	cam.Start3D( EyePos(), EyeAngles() )
@@ -453,6 +465,10 @@ usermessage.Hook( "Portal:ObjectInPortal", function(umsg)
         if IsValid( ent ) and IsValid( portal ) then
 			ent.InPortal = portal
 			
+			-- if ent:IsPlayer() then
+				-- portal:SetupPlayerClone(ent)
+			-- end
+			
 			ent:SetRenderClipPlaneEnabled( true )
 			ent:SetGroundEntity( portal )
 		end
@@ -461,6 +477,9 @@ end )
 usermessage.Hook( "Portal:ObjectLeftPortal", function(umsg)
         local ent = umsg:ReadEntity()
         if IsValid( ent ) then
+			-- if ent:IsPlayer() and IsValid(ent.PortalClone) then
+				-- ent.PortalClone:Remove()
+			-- end
 			ent.InPortal = false
 			ent:SetRenderClipPlaneEnabled(false)
         end
