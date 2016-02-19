@@ -179,7 +179,7 @@ function ENT:MoveToNewPos(pos,newang) --Called by the swep, used if a player alr
 	elseif self.PortalType == TYPE_BLUE then
 		ParticleEffect("portal_1_close",effectpos,ang,nil)
 	elseif GetConVarNumber("portal_beta_borders") >= 1 then
-		ParticleEffect("portal_2_close_",pos,ang,nil)
+		ParticleEffect("portal_2_close_",effectpos,ang,nil)
 	else
 		ParticleEffect("portal_2_close",effectpos,ang,nil)
 	end
