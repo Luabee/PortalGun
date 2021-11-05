@@ -1,0 +1,578 @@
+ Volume in drive E is Backup
+ Volume Serial Number is 18C2-B495
+ Directory of E:\GIT\PortalGun
+2021-11-05  12:33    <DIR>          .
+2021-11-05  12:33    <DIR>          ..
+2021-11-05  12:28               505 .gitattributes
+2021-11-05  12:28               635 .gitignore
+2021-11-05  12:28               265 addon.txt
+2021-11-05  12:33                 0 all.txt
+2021-11-05  12:28             2 646 facepunch.txt
+2021-11-05  12:28    <DIR>          lua
+2021-11-05  12:28    <DIR>          materials
+2021-11-05  12:28    <DIR>          models
+2021-11-05  12:28    <DIR>          particles
+2021-11-05  12:28               827 README.md
+2021-11-05  12:28    <DIR>          scripts
+2021-11-05  12:28    <DIR>          sound
+
+ Directory of E:\GIT\PortalGun\.git
+2021-11-05  12:28               347 config
+2021-11-05  12:27                73 description
+2021-11-05  12:30                26 HEAD
+2021-11-05  12:27    <DIR>          hooks
+2021-11-05  12:30            33 106 index
+2021-11-05  12:27    <DIR>          info
+2021-11-05  12:28    <DIR>          logs
+2021-11-05  12:27    <DIR>          objects
+2021-11-05  12:28               114 packed-refs
+2021-11-05  12:28    <DIR>          refs
+
+ Directory of E:\GIT\PortalGun\.git\hooks
+2021-11-05  12:27    <DIR>          .
+2021-11-05  12:27    <DIR>          ..
+2021-11-05  12:27               478 applypatch-msg.sample
+2021-11-05  12:27               896 commit-msg.sample
+2021-11-05  12:27             4 655 fsmonitor-watchman.sample
+2021-11-05  12:27               189 post-update.sample
+2021-11-05  12:27               424 pre-applypatch.sample
+2021-11-05  12:27             1 643 pre-commit.sample
+2021-11-05  12:27               416 pre-merge-commit.sample
+2021-11-05  12:27             1 374 pre-push.sample
+2021-11-05  12:27             4 898 pre-rebase.sample
+2021-11-05  12:27               544 pre-receive.sample
+2021-11-05  12:27             1 492 prepare-commit-msg.sample
+2021-11-05  12:27             2 783 push-to-checkout.sample
+2021-11-05  12:27             3 650 update.sample
+
+ Directory of E:\GIT\PortalGun\.git\info
+2021-11-05  12:27    <DIR>          .
+2021-11-05  12:27    <DIR>          ..
+2021-11-05  12:27               240 exclude
+
+ Directory of E:\GIT\PortalGun\.git\logs
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:30               372 HEAD
+2021-11-05  12:28    <DIR>          refs
+
+ Directory of E:\GIT\PortalGun\.git\logs\refs
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:30    <DIR>          heads
+2021-11-05  12:28    <DIR>          remotes
+
+ Directory of E:\GIT\PortalGun\.git\logs\refs\heads
+2021-11-05  12:30    <DIR>          .
+2021-11-05  12:30    <DIR>          ..
+2021-11-05  12:30               166 linux_fix
+2021-11-05  12:28               190 master
+
+ Directory of E:\GIT\PortalGun\.git\logs\refs\remotes
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          origin
+
+ Directory of E:\GIT\PortalGun\.git\logs\refs\remotes\origin
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               190 HEAD
+
+ Directory of E:\GIT\PortalGun\.git\objects
+2021-11-05  12:27    <DIR>          .
+2021-11-05  12:27    <DIR>          ..
+2021-11-05  12:27    <DIR>          info
+2021-11-05  12:28    <DIR>          pack
+
+ Directory of E:\GIT\PortalGun\.git\objects\info
+2021-11-05  12:27    <DIR>          .
+2021-11-05  12:27    <DIR>          ..
+
+ Directory of E:\GIT\PortalGun\.git\objects\pack
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28            22 548 pack-d2673274c9c35d1e3f84f0960a8287caa52f0db1.idx
+2021-11-05  12:28       112 216 803 pack-d2673274c9c35d1e3f84f0960a8287caa52f0db1.pack
+
+ Directory of E:\GIT\PortalGun\.git\refs
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:30    <DIR>          heads
+2021-11-05  12:28    <DIR>          remotes
+2021-11-05  12:27    <DIR>          tags
+
+ Directory of E:\GIT\PortalGun\.git\refs\heads
+2021-11-05  12:30    <DIR>          .
+2021-11-05  12:30    <DIR>          ..
+2021-11-05  12:30                41 linux_fix
+2021-11-05  12:28                41 master
+
+ Directory of E:\GIT\PortalGun\.git\refs\remotes
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          origin
+
+ Directory of E:\GIT\PortalGun\.git\refs\remotes\origin
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28                32 HEAD
+
+ Directory of E:\GIT\PortalGun\.git\refs\tags
+2021-11-05  12:27    <DIR>          .
+2021-11-05  12:27    <DIR>          ..
+
+ Directory of E:\GIT\PortalGun\lua
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          autorun
+2021-11-05  12:28    <DIR>          entities
+2021-11-05  12:28    <DIR>          weapons
+
+ Directory of E:\GIT\PortalGun\lua\autorun
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28            11 342 animations.lua
+2021-11-05  12:28    <DIR>          client
+2021-11-05  12:28             9 882 portalmove.lua
+2021-11-05  12:28    <DIR>          server
+
+ Directory of E:\GIT\PortalGun\lua\autorun\client
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28             4 773 cl_stunbaton_effects.lua
+
+ Directory of E:\GIT\PortalGun\lua\autorun\server
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28             3 816 resources.lua
+2021-11-05  12:28                46 sv_fonts.lua
+
+ Directory of E:\GIT\PortalGun\lua\entities
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          func_noportal
+2021-11-05  12:28    <DIR>          info_hpd_controller
+2021-11-05  12:28             3 305 PortalPlayerClone.lua
+2021-11-05  12:28    <DIR>          projectile_portal_ball
+2021-11-05  12:28    <DIR>          prop_portal
+2021-11-05  12:28    <DIR>          trigger_portal_cleanser
+
+ Directory of E:\GIT\PortalGun\lua\entities\func_noportal
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               644 init.lua
+2021-11-05  12:28                18 shared.lua
+
+ Directory of E:\GIT\PortalGun\lua\entities\info_hpd_controller
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               788 init.lua
+
+ Directory of E:\GIT\PortalGun\lua\entities\projectile_portal_ball
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28             2 000 shared.lua
+
+ Directory of E:\GIT\PortalGun\lua\entities\prop_portal
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28            19 822 cl_init.lua
+2021-11-05  12:28            20 418 init.lua
+2021-11-05  12:28             7 385 shared.lua
+
+ Directory of E:\GIT\PortalGun\lua\entities\trigger_portal_cleanser
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28             1 865 init.lua
+2021-11-05  12:28                87 shared.lua
+
+ Directory of E:\GIT\PortalGun\lua\weapons
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          weapon_portalgun
+
+ Directory of E:\GIT\PortalGun\lua\weapons\weapon_portalgun
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28             4 068 ai_translations.lua
+2021-11-05  12:28            29 404 cl_init.lua
+2021-11-05  12:28             4 399 init.lua
+2021-11-05  12:28            23 809 shared.lua
+
+ Directory of E:\GIT\PortalGun\materials
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          effects
+2021-11-05  12:28    <DIR>          models
+2021-11-05  12:28    <DIR>          particle
+2021-11-05  12:28    <DIR>          sprites
+2021-11-05  12:28    <DIR>          vgui
+2021-11-05  12:28    <DIR>          weapons
+
+ Directory of E:\GIT\PortalGun\materials\effects
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               154 portal_1_particle.vmt
+2021-11-05  12:28             2 952 portal_1_particle.vtf
+2021-11-05  12:28               146 portal_2_particle.vmt
+2021-11-05  12:28            11 144 portal_2_particle.vtf
+2021-11-05  12:28               119 portal_cleanser.vmt
+2021-11-05  12:28             1 528 portal_cleanser.vtf
+2021-11-05  12:28               379 portal_create_warp_dudv.vmt
+2021-11-05  12:28           699 242 portal_create_warp_dudv.vtf
+2021-11-05  12:28               287 portal_create_warp_dudv_dx60.vmt
+2021-11-05  12:28           109 552 portal_create_warp_dx70.vtf
+2021-11-05  12:28           349 744 portal_create_warp_normal.vtf
+
+ Directory of E:\GIT\PortalGun\materials\models
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               298 fakeportal_ring_blue.vmt
+2021-11-05  12:28         4 194 832 fakeportal_ring_blue.vtf
+2021-11-05  12:28               299 fakeportal_ring_red.vmt
+2021-11-05  12:28         4 194 832 fakeportal_ring_red.vtf
+2021-11-05  12:28    <DIR>          player
+2021-11-05  12:28                77 portalat1.vmt
+2021-11-05  12:28                77 portalat2.vmt
+2021-11-05  12:28                75 portalblue.vmt
+2021-11-05  12:28                77 portalpb1.vmt
+2021-11-05  12:28                77 portalpb2.vmt
+2021-11-05  12:28                74 portalred.vmt
+2021-11-05  12:28    <DIR>          weapons
+
+ Directory of E:\GIT\PortalGun\materials\models\player
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          chell
+
+ Directory of E:\GIT\PortalGun\materials\models\player\chell
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               207 chell_hair.vmt
+2021-11-05  12:28         1 398 368 chell_hair.vtf
+2021-11-05  12:28         2 796 456 chell_head_diffuse.vtf
+2021-11-05  12:28               120 chell_head_lod.vmt
+2021-11-05  12:28         5 592 672 chell_head_normals.vtf
+2021-11-05  12:28         2 796 456 chell_legs_diffuse.vtf
+2021-11-05  12:28         2 796 456 chell_legs_exponent.vtf
+2021-11-05  12:28               120 chell_legs_lod.vmt
+2021-11-05  12:28         5 592 672 chell_legs_normals.vtf
+2021-11-05  12:28               392 chell_rev2_head.vmt
+2021-11-05  12:28               439 chell_rev2_legs.vmt
+2021-11-05  12:28               442 chell_rev2_torso.vmt
+2021-11-05  12:28         2 796 456 chell_torso_diffuse.vtf
+2021-11-05  12:28         2 796 456 chell_torso_exponent.vtf
+2021-11-05  12:28               121 chell_torso_lod.vmt
+2021-11-05  12:28         5 592 672 chell_torso_normals.vtf
+2021-11-05  12:28               422 gambler_eyeball_l.vmt
+2021-11-05  12:28               424 gambler_eyeball_r.vmt
+2021-11-05  12:28            22 104 gambler_eyes.vtf
+2021-11-05  12:28             5 720 gambler_eye_ao.vtf
+2021-11-05  12:28            16 549 skin_warp.vtf
+
+ Directory of E:\GIT\PortalGun\materials\models\weapons
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               174 camera.vmt
+2021-11-05  12:28           699 296 camera.vtf
+2021-11-05  12:28                83 v_hands.vmt
+2021-11-05  12:28           699 296 v_hands.vtf
+2021-11-05  12:28    <DIR>          v_models
+2021-11-05  12:28           699 296 v_portalgun.vtf
+2021-11-05  12:28    <DIR>          w_models
+
+ Directory of E:\GIT\PortalGun\materials\models\weapons\v_models
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          v_hands
+2021-11-05  12:28    <DIR>          v_portalgun
+2021-11-05  12:28    <DIR>          v_portalgun_p1
+2021-11-05  12:28    <DIR>          v_portalgun_pb
+
+ Directory of E:\GIT\PortalGun\materials\models\weapons\v_models\v_hands
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28         2 796 424 v_hands.vtf
+2021-11-05  12:28               262 v_handschell.vmt
+2021-11-05  12:28         4 194 512 v_hands_exponent.vtf
+2021-11-05  12:28         4 194 512 v_hands_normal.vtf
+
+ Directory of E:\GIT\PortalGun\materials\models\weapons\v_models\v_portalgun
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               407 potatos_vmodel.vmt
+2021-11-05  12:28           349 784 potatos_vmodel.vtf
+2021-11-05  12:28            43 936 potatos_vmodel_exponent.vtf
+2021-11-05  12:28            87 640 potatos_vmodel_normal.vtf
+2021-11-05  12:28                82 v_hands.vmt
+2021-11-05  12:28         2 796 448 v_hands.vtf
+2021-11-05  12:28               303 v_portalgun.vmt
+2021-11-05  12:28         1 398 360 v_portalgun.vtf
+2021-11-05  12:28                89 v_portalgun2.vmt
+2021-11-05  12:28           175 008 v_portalgun2.vtf
+2021-11-05  12:28               306 v_portalgun_blue.vmt
+2021-11-05  12:28         1 398 360 v_portalgun_blue.vtf
+2021-11-05  12:28           175 008 v_portalgun_exponent.vtf
+2021-11-05  12:28               439 v_portalgun_glass.vmt
+2021-11-05  12:28           349 784 v_portalgun_glass.vtf
+2021-11-05  12:28             2 960 v_portalgun_lightwarp.vtf
+2021-11-05  12:28           699 296 v_portalgun_normal.vtf
+2021-11-05  12:28               308 v_portalgun_orange.vmt
+2021-11-05  12:28         1 398 360 v_portalgun_orange.vtf
+
+ Directory of E:\GIT\PortalGun\materials\models\weapons\v_models\v_portalgun_p1
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28                83 v_hands.vmt
+2021-11-05  12:28         2 796 424 v_hands.vtf
+2021-11-05  12:28               564 v_portalgun.vmt
+2021-11-05  12:28           699 296 v_portalgun.vtf
+2021-11-05  12:28                97 v_portalgun2.vmt
+2021-11-05  12:28           174 984 v_portalgun2.vtf
+2021-11-05  12:28            43 936 v_portalgun_exponent.vtf
+2021-11-05  12:28               651 v_portalgun_glass.vmt
+2021-11-05  12:28           349 784 v_portalgun_glass.vtf
+2021-11-05  12:28             2 960 v_portalgun_lightwarp.vtf
+2021-11-05  12:28           699 272 v_portalgun_mask.vtf
+2021-11-05  12:28            87 640 v_portalgun_normal.vtf
+
+ Directory of E:\GIT\PortalGun\materials\models\weapons\v_models\v_portalgun_pb
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               112 v_hands.vmt
+2021-11-05  12:28         2 796 424 v_hands.vtf
+2021-11-05  12:28         2 796 348 v_hands_male.vtf
+2021-11-05  12:28               588 v_portalgun.vmt
+2021-11-05  12:28         5 592 612 v_portalgun.vtf
+2021-11-05  12:28           349 732 v_portalgun_exponent.vtf
+2021-11-05  12:28               651 v_portalgun_glass.vmt
+2021-11-05  12:28           349 784 v_portalgun_glass.vtf
+2021-11-05  12:28               183 v_portalgun_hole.vmt
+2021-11-05  12:28             2 960 v_portalgun_lightwarp.vtf
+2021-11-05  12:28           699 272 v_portalgun_mask.vtf
+2021-11-05  12:28           349 732 v_portalgun_normal.vtf
+
+ Directory of E:\GIT\PortalGun\materials\models\weapons\w_models
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          portalgun
+
+ Directory of E:\GIT\PortalGun\materials\models\weapons\w_models\portalgun
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               127 wportalgun_potatos.vmt
+2021-11-05  12:28            87 640 wportalgun_potatos.vtf
+2021-11-05  12:28               319 w_portalgun.vmt
+2021-11-05  12:28           175 008 w_portalgun.vtf
+2021-11-05  12:28               324 w_portalgun_blue.vmt
+2021-11-05  12:28           175 008 w_portalgun_blue.vtf
+2021-11-05  12:28            43 936 w_portalgun_exponent.vtf
+2021-11-05  12:28            16 525 w_portalgun_lightwarp.vtf
+2021-11-05  12:28            87 640 w_portalgun_normal.vtf
+2021-11-05  12:28               326 w_portalgun_orange.vmt
+2021-11-05  12:28           175 008 w_portalgun_orange.vtf
+
+ Directory of E:\GIT\PortalGun\materials\particle
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28            87 616 particle_glow_05.vtf
+2021-11-05  12:28               166 particle_glow_05_add_15ob.vmt
+2021-11-05  12:28               178 particle_glow_05_add_15ob_noz.vmt
+2021-11-05  12:28           349 784 particle_ring_pulled.vtf
+2021-11-05  12:28               129 particle_ring_pulled_add_oriented.vmt
+
+ Directory of E:\GIT\PortalGun\materials\sprites
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               130 betalight.vmt
+2021-11-05  12:28            87 588 betalight.vtf
+2021-11-05  12:28               262 blborder.vmt
+2021-11-05  12:28        15 730 048 blborder.vtf
+2021-11-05  12:28               285 blueborder.vmt
+2021-11-05  12:28        45 791 520 blueborder.vtf
+2021-11-05  12:28               130 bluelight.vmt
+2021-11-05  12:28            11 168 bluelight.vtf
+2021-11-05  12:28             1 102 bluenodraw.png
+2021-11-05  12:28               124 grav_beam.vmt
+2021-11-05  12:28             8 337 grav_beam.vtf
+2021-11-05  12:28               141 grav_beam_noz.vmt
+2021-11-05  12:28               114 grav_flare.vmt
+2021-11-05  12:28            16 591 grav_flare.vtf
+2021-11-05  12:28               131 grav_light.vmt
+2021-11-05  12:28               277 n0blue.vmt
+2021-11-05  12:28        46 490 624 n0blue.vtf
+2021-11-05  12:28               276 n0red.vmt
+2021-11-05  12:28        46 490 624 n0red.vtf
+2021-11-05  12:28               277 noblue.vmt
+2021-11-05  12:28         5 243 488 noblue.vtf
+2021-11-05  12:28               276 nored.vmt
+2021-11-05  12:28         5 243 488 nored.vtf
+2021-11-05  12:28               261 ogborder.vmt
+2021-11-05  12:28        15 730 048 ogborder.vtf
+2021-11-05  12:28               132 orangelight.vmt
+2021-11-05  12:28             2 976 orangelight.vtf
+2021-11-05  12:28               144 orangelight1_noz.vmt
+2021-11-05  12:28             1 102 orangenodraw.png
+2021-11-05  12:28    <DIR>          portalgunsprites
+2021-11-05  12:28               138 portalgun_effects.vmt
+2021-11-05  12:28            11 144 portalgun_effects.vtf
+2021-11-05  12:28               136 portalgun_light.vmt
+2021-11-05  12:28            22 080 portalgun_light.vtf
+2021-11-05  12:28               280 redborder.vmt
+2021-11-05  12:28        45 791 520 redborder.vtf
+2021-11-05  12:28               283 refract_blue.vmt
+2021-11-05  12:28               282 refract_orange.vmt
+
+ Directory of E:\GIT\PortalGun\materials\sprites\portalgunsprites
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28             1 405 grav_beam.png
+2021-11-05  12:28               117 grav_flare.vmt
+2021-11-05  12:28            16 591 grav_flare.vtf
+
+ Directory of E:\GIT\PortalGun\materials\vgui
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          entities
+2021-11-05  12:28    <DIR>          portalgun
+
+ Directory of E:\GIT\PortalGun\materials\vgui\entities
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               123 weapon_portalgun.vmt
+2021-11-05  12:28            87 604 weapon_portalgun.vtf
+
+ Directory of E:\GIT\PortalGun\materials\vgui\portalgun
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               495 lastfired.png
+2021-11-05  12:28             1 105 leftempty.png
+2021-11-05  12:28             1 306 leftfull.png
+2021-11-05  12:28             1 081 rightempty.png
+2021-11-05  12:28             1 227 rightfull.png
+
+ Directory of E:\GIT\PortalGun\materials\weapons
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28               137 portalgun_inventory.vmt
+2021-11-05  12:28           174 924 portalgun_inventory.vtf
+
+ Directory of E:\GIT\PortalGun\models
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          blackops
+2021-11-05  12:28    <DIR>          weapons
+
+ Directory of E:\GIT\PortalGun\models\blackops
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28             8 115 portal.dx80.vtx
+2021-11-05  12:28             8 115 portal.dx90.vtx
+2021-11-05  12:28             1 660 portal.mdl
+2021-11-05  12:28               689 portal.phy
+2021-11-05  12:28             8 107 portal.sw.vtx
+2021-11-05  12:28            27 328 portal.vvd
+2021-11-05  12:28             1 293 portal_sides.dx80.vtx
+2021-11-05  12:28             1 293 portal_sides.dx90.vtx
+2021-11-05  12:28             1 656 portal_sides.mdl
+2021-11-05  12:28             1 995 portal_sides.phy
+2021-11-05  12:28             1 285 portal_sides.sw.vtx
+2021-11-05  12:28             6 208 portal_sides.vvd
+
+ Directory of E:\GIT\PortalGun\models\weapons
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          portalgun
+
+ Directory of E:\GIT\PortalGun\models\weapons\portalgun
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28           314 920 v_portalgun.dx80.vtx
+2021-11-05  12:28           309 750 v_portalgun.dx90.vtx
+2021-11-05  12:28            56 316 v_portalgun.mdl
+2021-11-05  12:28           308 710 v_portalgun.sw.vtx
+2021-11-05  12:28         1 260 352 v_portalgun.vvd
+2021-11-05  12:28            34 964 v_portalgun_anims.mdl
+2021-11-05  12:28           171 179 v_portalgun_def.dx80.vtx
+2021-11-05  12:28           171 120 v_portalgun_def.dx90.vtx
+2021-11-05  12:28            33 488 v_portalgun_def.mdl
+2021-11-05  12:28           170 928 v_portalgun_def.sw.vtx
+2021-11-05  12:28           738 816 v_portalgun_def.vvd
+2021-11-05  12:28           148 310 v_portalgun_f22.dx80.vtx
+2021-11-05  12:28           148 275 v_portalgun_f22.dx90.vtx
+2021-11-05  12:28            16 120 v_portalgun_f22.mdl
+2021-11-05  12:28           148 051 v_portalgun_f22.sw.vtx
+2021-11-05  12:28           608 640 v_portalgun_f22.vvd
+2021-11-05  12:28           130 586 v_portalgun_p1.dx80.vtx
+2021-11-05  12:28           130 312 v_portalgun_p1.dx90.vtx
+2021-11-05  12:28            34 964 v_portalgun_p1.mdl
+2021-11-05  12:28           129 984 v_portalgun_p1.sw.vtx
+2021-11-05  12:28           543 744 v_portalgun_p1.vvd
+2021-11-05  12:28           132 228 v_portalgun_pb.dx80.vtx
+2021-11-05  12:28           132 088 v_portalgun_pb.dx90.vtx
+2021-11-05  12:28            29 088 v_portalgun_pb.mdl
+2021-11-05  12:28           131 880 v_portalgun_pb.sw.vtx
+2021-11-05  12:28           552 832 v_portalgun_pb.vvd
+2021-11-05  12:28            57 549 w_portalgun_hl2.dx80.vtx
+2021-11-05  12:28            57 549 w_portalgun_hl2.dx90.vtx
+2021-11-05  12:28             2 276 w_portalgun_hl2.mdl
+2021-11-05  12:28             2 563 w_portalgun_hl2.phy
+2021-11-05  12:28            57 541 w_portalgun_hl2.sw.vtx
+2021-11-05  12:28           238 016 w_portalgun_hl2.vvd
+
+ Directory of E:\GIT\PortalGun\particles
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28            26 772 cleansers.pcf
+2021-11-05  12:28               261 particles_manifest.txt
+2021-11-05  12:28            21 669 portalgun.pcf
+2021-11-05  12:28            33 303 portals.pcf
+2021-11-05  12:28           131 484 portal_beta_particles.pcf
+2021-11-05  12:28            96 118 portal_projectile.pcf
+2021-11-05  12:28             7 707 wip_muzzle.pcf
+
+ Directory of E:\GIT\PortalGun\scripts
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28             5 924 game_sounds_player_portal.txt
+2021-11-05  12:28            11 526 game_sounds_portal.txt
+2021-11-05  12:28            10 287 game_sounds_weapons_portal.txt
+
+ Directory of E:\GIT\PortalGun\sound
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          weapons
+
+ Directory of E:\GIT\PortalGun\sound\weapons
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28    <DIR>          portalgun
+
+ Directory of E:\GIT\PortalGun\sound\weapons\portalgun
+2021-11-05  12:28    <DIR>          .
+2021-11-05  12:28    <DIR>          ..
+2021-11-05  12:28            77 228 object_use_01.wav
+2021-11-05  12:28            86 652 object_use_02.wav
+2021-11-05  12:28            19 134 object_use_failure_01.wav
+2021-11-05  12:28            19 050 object_use_failure_no_gun_01.wav
+2021-11-05  12:28           723 934 object_use_lp_01.wav
+2021-11-05  12:28            86 652 object_use_no_gun_01.wav
+2021-11-05  12:28            24 524 object_use_stop_01.wav
+2021-11-05  12:28           123 484 portalgun_shoot_blue1.wav
+2021-11-05  12:28           145 056 portalgun_shoot_red1.wav
+2021-11-05  12:28           102 994 portal_ambient_loop1.wav
+2021-11-05  12:28            59 432 portal_close1.wav
+2021-11-05  12:28           163 896 portal_close2.wav
+2021-11-05  12:28            77 800 portal_enter1.wav
+2021-11-05  12:28           120 620 portal_enter2.wav
+2021-11-05  12:28           132 052 portal_exit1.wav
+2021-11-05  12:28           280 116 portal_exit2.wav
+2021-11-05  12:28           115 390 portal_fizzle1.wav
+2021-11-05  12:28            95 060 portal_fizzle2.wav
+2021-11-05  12:28            87 380 portal_invalid_surface3.wav
+2021-11-05  12:28           166 980 portal_open1.wav
+2021-11-05  12:28           108 944 portal_open3.wav
+
+     Total Files Listed:
+
+             170 Dir(s)  379 446 460 416 bytes free
