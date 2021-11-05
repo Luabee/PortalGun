@@ -11,19 +11,19 @@ local texFSB2 = render.GetSuperFPTex2()
 
  -- Make our own material to use, so we aren't messing with other effects.
 local PortalMaterial = CreateMaterial(
-                "PortalMaterial",
-                "UnlitGeneric",
-                -- "GMODScreenspace",
-                {
-                        [ '$basetexture' ] = texFSB,
-                        [ '$model' ] = "1",
-                        -- [ '$basetexturetransform' ] = "center .5 .5 scale 1 1 rotate 0 translate 0 0",
-                        [ '$alphatest' ] = "0",
-                        [ '$additive' ] = "0",
-                        [ '$translucent' ] = "0",
-                        [ '$ignorez' ] = "0"
-                }
-        )
+								"PortalMaterial",
+								"UnlitGeneric",
+								-- "GMODScreenspace",
+								{
+												[ '$basetexture' ] = texFSB,
+												[ '$model' ] = "1",
+												-- [ '$basetexturetransform' ] = "center .5 .5 scale 1 1 rotate 0 translate 0 0",
+												[ '$alphatest' ] = "0",
+												[ '$additive' ] = "0",
+												[ '$translucent' ] = "0",
+												[ '$ignorez' ] = "0"
+								}
+				)
 
 if CLIENT then
 	game.AddParticles("particles/portal_projectile.pcf")
@@ -37,13 +37,13 @@ end
 ENT.RenderGroup = RENDERGROUP_BOTH
 
 /*------------------------------------
-        Initialize()
+				Initialize()
 ------------------------------------*/
 function ENT:Initialize( )
 
-        self:SetRenderBounds( self:OBBMins()*20, self:OBBMaxs()*20 )
-       
-        self.openpercent = 0
+				self:SetRenderBounds( self:OBBMins()*20, self:OBBMaxs()*20 )
+			 
+				self.openpercent = 0
 		
 		self:SetRenderMode(RENDERMODE_TRANSALPHA)
 		
@@ -55,15 +55,15 @@ function ENT:Initialize( )
 		
 		-- self:SetRenderClipPlaneEnabled( true )
 		-- self:SetRenderClipPlane( self:GetForward(), 5 )
-       
+			 
 end
 
 usermessage.Hook("Portal:Moved", function(umsg)
-        local ent = umsg:ReadEntity()
+				local ent = umsg:ReadEntity()
 		local pos = umsg:ReadVector()
 		local ang = umsg:ReadAngle()
-        if ent and ent:IsValid() and ent.openpercent then
-                ent.openpercent = 0
+				if ent and ent:IsValid() and ent.openpercent then
+								ent.openpercent = 0
 				
 				ent:SetAngles(ang)
 				if ent:OnFloor() then
@@ -72,50 +72,50 @@ usermessage.Hook("Portal:Moved", function(umsg)
 					ent:SetRenderOrigin(pos)
 				end
 				-- ent:SetRenderClipPlane( ent:GetForward(), 5 )
-        end
+				end
 end)
 
 --I think this is from sassilization..
 local function IsInFront( posA, posB, normal )
 
-        local Vec1 = ( posB - posA ):GetNormalized()
+				local Vec1 = ( posB - posA ):GetNormalized()
 
-        return ( normal:Dot( Vec1 ) < 0 )
+				return ( normal:Dot( Vec1 ) < 0 )
 		-- return true
 
 end
 
 function ENT:Think()
 
-        if self:GetNWBool("Potal:Activated",false) == false then return end
-       
-        self.openpercent = math.Approach( self.openpercent, 1, FrameTime() * 3 * ( 1 - self.openpercent + 0.1 ) )
+				if self:GetNWBool("Potal:Activated",false) == false then return end
+			 
+				self.openpercent = math.Approach( self.openpercent, 1, FrameTime() * 3 * ( 1 - self.openpercent + 0.1 ) )
 
-        if dlightenabled:GetBool() == false then return end
-       
-        local portaltype = self:GetNWInt("Potal:PortalType",TYPE_BLUE)
+				if dlightenabled:GetBool() == false then return end
+			 
+				local portaltype = self:GetNWInt("Potal:PortalType",TYPE_BLUE)
 
-        local glowcolor = Color( 64, 144, 255, 255 )
-       
-        if portaltype == TYPE_ORANGE then
-                glowcolor = Color( 255, 160, 32, 255 )
-        end
-       
-        --[[if lightteleport:GetBool() then
-       
-                local portal = self:GetNWEntity( "Potal:Other", nil )
-       
-                if IsValid( portal ) then
+				local glowcolor = Color( 64, 144, 255, 255 )
+			 
+				if portaltype == TYPE_ORANGE then
+								glowcolor = Color( 255, 160, 32, 255 )
+				end
+			 
+				--[[if lightteleport:GetBool() then
+			 
+								local portal = self:GetNWEntity( "Potal:Other", nil )
+			 
+								if IsValid( portal ) then
 
-                        glowvec = render.GetLightColor( portal:GetPos() ) * 255
-                        glowcolor = Color( glowvec.x, glowvec.y, glowvec.z )
-                       
-                end
-                       
-        end]]
-       -- if AvgFPS() > 60 then
-        local dlight = DynamicLight( self:EntIndex() )
-        if dlight then
+												glowvec = render.GetLightColor( portal:GetPos() ) * 255
+												glowcolor = Color( glowvec.x, glowvec.y, glowvec.z )
+											 
+								end
+											 
+				end]]
+			 -- if AvgFPS() > 60 then
+				local dlight = DynamicLight( self:EntIndex() )
+				if dlight then
 			local col = glowcolor
 			dlight.Pos = self:GetRenderOrigin() + self:GetAngles():Forward()
 			dlight.r = col.r
@@ -126,7 +126,7 @@ function ENT:Think()
 			dlight.Size = self.openpercent * 256
 			dlight.DieTime = CurTime() + .9
 			dlight.Style = 5
-        end
+				end
 	   -- end
 end
 
@@ -143,95 +143,95 @@ local orangebetarefract = surface.GetTextureID( "sprites/refract_orange" )
 
 function ENT:DrawPortalEffects( portaltype )
 
-        local ang = self:GetAngles()
-       
-        local res = 0.1
-       
-        local percentopen = self.openpercent
-       
-        local width = ( percentopen ) * 105
-        local height = ( percentopen ) * 114
-       
-        if betabordersenabled:GetBool() then
-                height = ( percentopen ) * 112
-        end
+				local ang = self:GetAngles()
+			 
+				local res = 0.1
+			 
+				local percentopen = self.openpercent
+			 
+				local width = ( percentopen ) * 105
+				local height = ( percentopen ) * 114
+			 
+				if betabordersenabled:GetBool() then
+								height = ( percentopen ) * 112
+				end
 		
-       
-        ang:RotateAroundAxis( ang:Right(), -90 )
-        ang:RotateAroundAxis( ang:Up(), 90 )
-       
-        local origin = self:GetRenderOrigin() + ( self:GetForward() * 0.1 ) - ( self:GetUp() * height / -2 ) - ( self:GetRight() * width / -2 )
-       
-        cam.Start3D2D( origin, ang, res )
-       
-                surface.SetDrawColor( 255, 255, 255, 255 )
-       
-                if ( RENDERING_PORTAL or !self:GetNWBool( "Potal:Linked", false ) or !self:GetNWBool( "Potal:Activated", false )) then
-               
-                        if portaltype == TYPE_BLUE then
+			 
+				ang:RotateAroundAxis( ang:Right(), -90 )
+				ang:RotateAroundAxis( ang:Up(), 90 )
+			 
+				local origin = self:GetRenderOrigin() + ( self:GetForward() * 0.1 ) - ( self:GetUp() * height / -2 ) - ( self:GetRight() * width / -2 )
+			 
+				cam.Start3D2D( origin, ang, res )
+			 
+								surface.SetDrawColor( 255, 255, 255, 255 )
+			 
+								if ( RENDERING_PORTAL or !self:GetNWBool( "Potal:Linked", false ) or !self:GetNWBool( "Potal:Activated", false )) then
+							 
+												if portaltype == TYPE_BLUE then
 						
 						if betabordersenabled:GetBool() then
-                               
-                               surface.SetTexture( nonlinkedbluebeta )
+															 
+															 surface.SetTexture( nonlinkedbluebeta )
 							   
 							   else
-                       
-                                surface.SetTexture( nonlinkedblue )
+											 
+																surface.SetTexture( nonlinkedblue )
 						
 						end
-                               
-                        elseif portaltype == TYPE_ORANGE then
+															 
+												elseif portaltype == TYPE_ORANGE then
 						
 						if betabordersenabled:GetBool() then
-                               
-                               surface.SetTexture( nonlinkedorangebeta )
+															 
+															 surface.SetTexture( nonlinkedorangebeta )
 							   
 							   else
-                       
-                                surface.SetTexture( nonlinkedorange )
-                               
-                        end
+											 
+																surface.SetTexture( nonlinkedorange )
+															 
+												end
 						end
-                       
-                        surface.DrawTexturedRect( 0, 0, width / res , height / res )
-                       
-                end
+											 
+												surface.DrawTexturedRect( 0, 0, width / res , height / res )
+											 
+								end
 				
-                if bordersenabled:GetBool() == true then
-                        if portaltype == TYPE_BLUE then
-                               
-                                if betabordersenabled:GetBool() then
-                               
-                                        surface.SetTexture( bluebetabordermat )
-                                       
-                                else
-                               
-                                        surface.SetTexture( bluebordermat )
-                                       
-                                end
-                               
-                                surface.DrawTexturedRect( 0, 0, width / res , height / res )
-                               
-                        elseif portaltype == TYPE_ORANGE then
-                               
-                                if betabordersenabled:GetBool() then
-                               
-                                        surface.SetTexture( orangebetabordermat )
-                                       
-                                else
-                               
-                                        surface.SetTexture( orangebordermat )
-                                       
-                                end
-                               
-                                surface.DrawTexturedRect( 0, 0, width / res , height / res )
-                               
-                        end
-                       
-                end
-               
-        cam.End3D2D()
-       
+								if bordersenabled:GetBool() == true then
+												if portaltype == TYPE_BLUE then
+															 
+																if betabordersenabled:GetBool() then
+															 
+																				surface.SetTexture( bluebetabordermat )
+																			 
+																else
+															 
+																				surface.SetTexture( bluebordermat )
+																			 
+																end
+															 
+																surface.DrawTexturedRect( 0, 0, width / res , height / res )
+															 
+												elseif portaltype == TYPE_ORANGE then
+															 
+																if betabordersenabled:GetBool() then
+															 
+																				surface.SetTexture( orangebetabordermat )
+																			 
+																else
+															 
+																				surface.SetTexture( orangebordermat )
+																			 
+																end
+															 
+																surface.DrawTexturedRect( 0, 0, width / res , height / res )
+															 
+												end
+											 
+								end
+							 
+				cam.End3D2D()
+			 
 end
 
 function ENT:Draw()
@@ -308,7 +308,7 @@ function ENT:RenderPortal( origin, angles)
 	if renderportals:GetBool() then
 		local portal = self:GetNWEntity( "Potal:Other", nil )
 		if IsValid( portal ) and self:GetNWBool( "Potal:Linked", false ) and self:GetNWBool( "Potal:Activated", false ) then
-   
+	 
 			local portaltype = self:GetNWInt( "Potal:PortalType", TYPE_BLUE )
 		   
 			local normal = self:GetForward()
@@ -384,15 +384,15 @@ end
 
 
 /*------------------------------------
-        ShouldDrawLocalPlayer()
+				ShouldDrawLocalPlayer()
 ------------------------------------*/
 --Draw yourself into the portal.. YES YOU CAN SEE YOURSELF! (Bug? Can't see your weapons)
 hook.Add( "ShouldDrawLocalPlayer", "Portal.ShouldDrawLocalPlayer", function()
 		local ply = LocalPlayer()
 		local portal = ply.InPortal
-        if RENDERING_PORTAL then
+				if RENDERING_PORTAL then
 			return true
-        -- elseif IsValid(portal) then
+				-- elseif IsValid(portal) then
 			-- local pos,ang = portal:GetPortalPosOffsets(portal:GetOther(),ply), portal:GetPortalAngleOffsets(portal:GetOther(),ply)
 			-- pos.z = pos.z - 64
 			
@@ -445,24 +445,24 @@ hook.Add( "HUDPaint", "Portal.BlueMonitor", function( w,h )
 end )
 
 /*------------------------------------
-        GetMotionBlurValues()
+				GetMotionBlurValues()
 ------------------------------------*/
 hook.Add( "GetMotionBlurValues", "Portal.GetMotionBlurValues", function( x, y, fwd, spin )
-        if RENDERING_PORTAL then
-                return 0, 0, 0, 0
-        end
+				if RENDERING_PORTAL then
+								return 0, 0, 0, 0
+				end
 end )
 
 hook.Add( "PostProcessPermitted", "Portal.PostProcessPermitted", function( element )
-        if element == "bloom" and RENDERING_PORTAL then
-                return false
-        end
+				if element == "bloom" and RENDERING_PORTAL then
+								return false
+				end
 end )
 
 usermessage.Hook( "Portal:ObjectInPortal", function(umsg)
-        local portal = umsg:ReadEntity()
-        local ent = umsg:ReadEntity()
-        if IsValid( ent ) and IsValid( portal ) then
+				local portal = umsg:ReadEntity()
+				local ent = umsg:ReadEntity()
+				if IsValid( ent ) and IsValid( portal ) then
 			ent.InPortal = portal
 			
 			-- if ent:IsPlayer() then
@@ -475,61 +475,61 @@ usermessage.Hook( "Portal:ObjectInPortal", function(umsg)
 end )
 
 usermessage.Hook( "Portal:ObjectLeftPortal", function(umsg)
-        local ent = umsg:ReadEntity()
-        if IsValid( ent ) then
+				local ent = umsg:ReadEntity()
+				if IsValid( ent ) then
 			-- if ent:IsPlayer() and IsValid(ent.PortalClone) then
 				-- ent.PortalClone:Remove()
 			-- end
 			ent.InPortal = false
 			ent:SetRenderClipPlaneEnabled(false)
-        end
+				end
 end )
 
 hook.Add( "RenderScreenspaceEffects", "Portal.RenderScreenspaceEffects", function()
-        for k,v in pairs( ents.GetAll() ) do
-                if IsValid( v.InPortal ) then
-                        --local plane = Plane(v.InPortal:GetForward(),v.InPortal:GetPos())
-                       
-                        local normal = v.InPortal:GetForward()
-                        local distance = normal:Dot( v.InPortal:GetRenderOrigin() )
-                       
+				for k,v in pairs( ents.GetAll() ) do
+								if IsValid( v.InPortal ) then
+												--local plane = Plane(v.InPortal:GetForward(),v.InPortal:GetPos())
+											 
+												local normal = v.InPortal:GetForward()
+												local distance = normal:Dot( v.InPortal:GetRenderOrigin() )
+											 
 						v:SetRenderClipPlaneEnabled(true)
-                        v:SetRenderClipPlane( normal, distance )
-                end
-        end
+												v:SetRenderClipPlane( normal, distance )
+								end
+				end
 		
 end )
 
 /*------------------------------------
-        VectorAngles()
+				VectorAngles()
 ------------------------------------*/
 function math.VectorAngles( forward, up )
 
-        local angles = Angle( 0, 0, 0 )
+				local angles = Angle( 0, 0, 0 )
 
-        local left = up:Cross( forward )
-        left:Normalize()
-       
-        local xydist = math.sqrt( forward.x * forward.x + forward.y * forward.y )
-       
-        // enough here to get angles?
-        if( xydist > 0.001 ) then
-       
-                angles.y = math.deg( math.atan2( forward.y, forward.x ) )
-                angles.p = math.deg( math.atan2( -forward.z, xydist ) )
-                angles.r = math.deg( math.atan2( left.z, ( left.y * forward.x ) - ( left.x * forward.y ) ) )
+				local left = up:Cross( forward )
+				left:Normalize()
+			 
+				local xydist = math.sqrt( forward.x * forward.x + forward.y * forward.y )
+			 
+				// enough here to get angles?
+				if( xydist > 0.001 ) then
+			 
+								angles.y = math.deg( math.atan2( forward.y, forward.x ) )
+								angles.p = math.deg( math.atan2( -forward.z, xydist ) )
+								angles.r = math.deg( math.atan2( left.z, ( left.y * forward.x ) - ( left.x * forward.y ) ) )
 
-        else
-       
-                angles.y = math.deg( math.atan2( -left.x, left.y ) )
-                angles.p = math.deg( math.atan2( -forward.z, xydist ) )
-                angles.r = 0
-       
-        end
+				else
+			 
+								angles.y = math.deg( math.atan2( -left.x, left.y ) )
+								angles.p = math.deg( math.atan2( -forward.z, xydist ) )
+								angles.r = 0
+			 
+				end
 
 
-        return angles
-       
+				return angles
+			 
 end
 
 --red = in blue = out
